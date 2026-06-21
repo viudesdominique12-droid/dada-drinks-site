@@ -3,8 +3,10 @@
 **/.DS_Store
 
 # Médias bruts (source lourde, non utilisée par le site — le site lit assets/)
-Photos/
-Vidéos/
+# NB : barre oblique en tête = ancré à la racine, sinon (FS Mac insensible à la
+# casse) « Photos/ » exclurait aussi « assets/photos/ ».
+/Photos/
+/Vidéos/
 
 # Outils / local
 .claude/
