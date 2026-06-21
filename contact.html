@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact — DADA</title>
+<meta name="description" content="Une question, une demande pro, une idée ? Contacte l'équipe Dada — on répond vite." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=53" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
+
+<!-- NAV -->
+<header class="nav scrolled" id="nav">
+  <a href="index.html" class="nav-logo" data-cursor="Accueil"><img src="assets/brand/logo-dada-white.png" alt="DADA Drinks" /></a>
+  <nav class="nav-links">
+    <a href="particuliers.html" data-page="particuliers.html">Particuliers</a>
+    <a href="professionnels.html" data-page="professionnels.html">Professionnels</a>
+    <a href="collaborations.html" data-page="collaborations.html">Collaborations</a>
+    <a href="histoire.html" data-page="histoire.html">L'histoire</a>
+  </nav>
+  <a href="contact.html" class="btn btn-nav" data-cursor="Go">Contact <span class="btn-dot"></span></a>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+</header>
+
+<main>
+  <!-- PAGE HERO -->
+  <section class="page-hero contact-hero">
+    <div class="container">
+      <p class="eyebrow"><span class="dot"></span> Contact · on répond vite</p>
+      <h1 class="ct-title">Dis-nous <span class="ct-juice-w"><svg class="ct-juice-svg" viewBox="0 0 300 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="tout">
+        <defs><clipPath id="ctcClip"><text x="150" y="84" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="100" textLength="292" lengthAdjust="spacingAndGlyphs">TOUT</text></clipPath></defs>
+        <text class="ct-empty" x="150" y="84" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="100" textLength="292" lengthAdjust="spacingAndGlyphs">TOUT</text>
+        <g clip-path="url(#ctcClip)"><g id="ctcLiquid" class="ct-liquid">
+          <rect x="-40" y="0" width="380" height="200"/>
+          <path id="ctcWave" d=""/>
+          <g id="ctcBubbles"></g>
+        </g></g>
+      </svg></span>.</h1>
+      <p class="ph-sub">Une question sur un parfum, une demande presse, un projet de collab ou une commande pro&nbsp;? Choisis ton profil — l'équipe Dada te répond.</p>
+      <div class="ct-badges">
+        <span class="ct-badge"><b>~24 h</b> temps de réponse moyen</span>
+        <span class="ct-badge"><b>DM</b> souvent le plus rapide</span>
+        <span class="ct-badge"><b>FR</b> on parle ta langue</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="ct-marquee" aria-hidden="true">
+    <div class="ctm-track">
+      <span>On répond vite</span><b>✦</b><span>Team Dada</span><b>✦</b><span>DM ouverts</span><b>✦</b><span>Bouscule les codes</span><b>✦</b>
+      <span>On répond vite</span><b>✦</b><span>Team Dada</span><b>✦</b><span>DM ouverts</span><b>✦</b><span>Bouscule les codes</span><b>✦</b>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <section class="contact">
+    <div class="container">
+      <div class="ct-grid">
+        <!-- FORM -->
+        <form class="ct-form" id="ctForm" novalidate>
+          <span class="ct-form-tag">★ Écris-nous</span>
+
+          <div class="ct-pf-label">Je suis…</div>
+          <div class="ct-profiles" id="ctProfiles" role="tablist" aria-label="Je suis">
+            <button type="button" class="ct-pf is-active" data-profil="particulier" data-accent="#E2001A" role="tab" aria-selected="true">Particulier</button>
+            <button type="button" class="ct-pf" data-profil="pro" data-accent="#1FA98C" role="tab" aria-selected="false">Pro</button>
+            <button type="button" class="ct-pf" data-profil="presse" data-accent="#A8275E" role="tab" aria-selected="false">Presse</button>
+            <button type="button" class="ct-pf" data-profil="collab" data-accent="#E3023B" role="tab" aria-selected="false">Collab</button>
+          </div>
+
+          <div class="ct-row">
+            <div class="ct-field"><input id="nom" name="nom" type="text" placeholder=" " required /><label for="nom">Nom</label></div>
+            <div class="ct-field"><input id="email" name="email" type="email" placeholder=" " required /><label for="email">Email</label></div>
+          </div>
+          <div class="ct-field"><input id="extra" name="extra" type="text" placeholder=" " /><label for="extra" id="ctExtraLabel">Sujet</label></div>
+          <div class="ct-field"><textarea id="msg" name="message" placeholder=" " required></textarea><label for="msg">Message</label></div>
+
+          <button type="submit" class="btn btn-primary ct-send" data-cursor="Envoyer">Envoyer le message <span class="btn-dot"></span></button>
+          <p class="ct-formnote">En envoyant, tu acceptes d'être recontacté·e par l'équipe Dada. Zéro spam, promis.</p>
+
+          <!-- success state (révélé en JS) -->
+          <div class="ct-success" id="ctSuccess" hidden>
+            <span class="ct-splash" aria-hidden="true"></span>
+            <div class="ct-success-ic"><svg viewBox="0 0 52 52"><path d="M14 27 L23 36 L39 18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Message envoyé&nbsp;!</h3>
+            <p id="ctSuccessMsg">On a bien reçu ton message. L'équipe Dada te répond très vite.</p>
+            <button type="button" class="btn btn-ghost" id="ctReset" data-cursor="OK">Envoyer un autre message</button>
+          </div>
+        </form>
+
+        <!-- SIDE : jauge canette + aide contextuelle -->
+        <aside class="ct-side">
+          <div class="ct-gauge">
+            <svg class="ct-cansvg" viewBox="0 0 120 224" role="img" aria-label="Avancement de ton message">
+              <defs><clipPath id="ctCanClip"><rect x="25" y="29" width="70" height="172" rx="15"/></clipPath></defs>
+              <rect x="36" y="12" width="48" height="13" rx="5" class="ct-can-lid"/>
+              <g clip-path="url(#ctCanClip)">
+                <g id="ctJuice" class="ct-juicefill">
+                  <rect x="16" y="30" width="88" height="210"/>
+                  <path id="ctWave" d=""/>
+                  <g id="ctBubbles"></g>
+                </g>
+              </g>
+              <rect x="22" y="25" width="76" height="180" rx="18" class="ct-can-body"/>
+            </svg>
+            <div class="ct-gauge-meta">
+              <span class="ct-pct" id="ctPct">0%</span>
+              <span class="ct-gauge-lab" id="ctGaugeLab">Remplis pour envoyer</span>
+            </div>
+          </div>
+
+          <div class="ct-help" id="ctHelp">
+            <!-- injecté en JS selon le profil -->
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTRES MOYENS -->
+  <section class="ct-reach">
+    <div class="container">
+      <div class="ct-reach-grid">
+        <div class="reach-card">
+          <span class="reach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+          </span>
+          <h3>Par email</h3>
+          <p>Général&nbsp;: <a href="mailto:hello@dadadrinks.com">hello@dadadrinks.com</a><br/>Pro&nbsp;: <a href="mailto:pro@dadadrinks.com">pro@dadadrinks.com</a></p>
+        </div>
+        <div class="reach-card reach-hq">
+          <span class="reach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          </span>
+          <h3>Le QG</h3>
+          <p>Dada Drinks — <strong>Nanterre (92)</strong>, France.<br/>Là où tout a commencé en 2007.</p>
+          <span class="reach-map" aria-hidden="true"><i></i><i></i><i></i><span class="reach-pin"></span></span>
+        </div>
+        <div class="reach-card">
+          <span class="reach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+          </span>
+          <h3>En DM, c'est plus rapide</h3>
+          <p>On répond souvent plus vite sur les réseaux.</p>
+          <div class="reach-socials">
+            <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener" data-cursor="DM">Instagram</a>
+            <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener" data-cursor="DM">TikTok</a>
+            <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="ct-faq">
+    <div class="container">
+      <div class="page-section-head">
+        <p class="section-tag"><span>?</span> FAQ</p>
+        <h2>Les questions <span class="gradient-text">qu'on nous pose.</span></h2>
+      </div>
+      <div class="faq-list" id="faqList">
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Où acheter Dada près de chez moi&nbsp;?<span class="faq-ic" aria-hidden="true"></span></button>
+          <div class="faq-a"><p>On est dispo dans plus de 2 000 points de vente (Carrefour, Auchan, Leclerc, Franprix, Metro…) et chez de nombreux indépendants. Direction la page <a href="particuliers.html#trouver">Particuliers</a> pour la liste.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Je veux revendre Dada, comment faire&nbsp;?<span class="faq-ic" aria-hidden="true"></span></button>
+          <div class="faq-a"><p>Cap&nbsp;! Rendez-vous sur l'<a href="professionnels.html">espace Pro</a> : packs 24×33, marges, frigos &amp; PLV, et un formulaire pour devenir partenaire. Ou écris-nous en choisissant le profil <strong>Pro</strong> ci-dessus.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Vous faites quels parfums&nbsp;?<span class="faq-ic" aria-hidden="true"></span></button>
+          <div class="faq-a"><p>13 parfums&nbsp;: Cola, Cola Zéro, Cola Cherry, Cerise, Fraise, Litchi, Lemon, Mangue, Melon, Mojito, Pêche, Pomme et Ice Tea Pêche. Tout est sur la page <a href="particuliers.html">Particuliers</a>.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Une idée de collab / un projet d'artiste&nbsp;?<span class="faq-ic" aria-hidden="true"></span></button>
+          <div class="faq-a"><p>On adore. Choisis le profil <strong>Collab</strong> dans le formulaire et glisse ton lien (Insta, portfolio). Voir aussi nos <a href="collaborations.html">collaborations</a>.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">Sous combien de temps répondez-vous&nbsp;?<span class="faq-ic" aria-hidden="true"></span></button>
+          <div class="faq-a"><p>En moyenne sous <strong>24 h</strong> (jours ouvrés). Pour une réponse express, le DM Instagram ou TikTok marche souvent mieux.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTENAIRES / DISTRIBUTEURS -->
+  <section class="ct-partners">
+    <div class="container">
+      <p class="pt-kicker">Tu nous trouves chez</p>
+      <div class="partner-logos">
+        <span class="partner"><img src="assets/partners/carrefour.png" alt="Carrefour" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/auchan.png" alt="Auchan" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/leclerc.png" alt="E.Leclerc" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/systeme-u.png" alt="Système U" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/intermarche.png" alt="Intermarché" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/franprix.png" alt="Franprix" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/g20.png" alt="Supermarchés G20" loading="lazy" /></span>
+        <span class="partner"><img src="assets/partners/maximarket.png" alt="Maximarket" loading="lazy" /></span>
+      </div>
+      <p class="pt-note">…et plus de 2 000 points de vente partout en France.</p>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="assets/brand/logo-dada-white.png" alt="DADA" class="footer-logo" />
+      <p>La boisson qui bouscule les codes. Née à Nanterre en 2007.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explorer</h5>
+      <a href="particuliers.html">La gamme</a>
+      <a href="particuliers.html#trouver">Où acheter</a>
+      <a href="histoire.html">L'histoire</a>
+      <a href="professionnels.html">Professionnels</a>
+    </div>
+    <div class="footer-col">
+      <h5>La marque</h5>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="professionnels.html">Espace pro</a>
+      <a href="collaborations.html">Collaborations</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Suivre</h5>
+      <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener">TikTok</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <p>© 2026 Dada Drinks — site concept de démonstration.</p>
+    <p class="legal">Pour votre santé, mangez au moins 5 fruits et légumes par jour. · mangerbouger.fr</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/main.js?v=53"></script>
+</body>
+</html>

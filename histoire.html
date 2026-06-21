@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>L'histoire — DADA</title>
+<meta name="description" content="De la banlieue à l'empire : l'histoire vraie de Dada, née à Nanterre en 2007. Le voyage, le déclic en Malaisie, la canette transparente, l'ascension." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=53" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo" data-cursor="Accueil"><img src="assets/brand/logo-dada-white.png" alt="DADA Drinks" /></a>
+  <nav class="nav-links">
+    <a href="particuliers.html" data-page="particuliers.html">Particuliers</a>
+    <a href="professionnels.html" data-page="professionnels.html">Professionnels</a>
+    <a href="collaborations.html" data-page="collaborations.html">Collaborations</a>
+    <a href="histoire.html" data-page="histoire.html">L'histoire</a>
+  </nav>
+  <a href="contact.html" class="btn btn-nav" data-cursor="Go">Contact <span class="btn-dot"></span></a>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+</header>
+
+<main>
+  <!-- PAGE HERO -->
+  <section class="page-hero" style="--accent:#E2001A">
+    <div class="container">
+      <p class="eyebrow"><span class="dot"></span> L'histoire · depuis 2007</p>
+      <h1 class="reveal-lines">De la banlieue<br/><span class="empire" aria-label="à l'empire.">
+        <svg id="empireSvg" class="empire-svg" viewBox="0 0 900 190" preserveAspectRatio="xMinYMax meet" role="img" aria-label="à l'empire.">
+          <defs>
+            <linearGradient id="empGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FF3B45"/><stop offset="1" stop-color="#C2000F"/>
+            </linearGradient>
+            <clipPath id="empClip">
+              <text x="2" y="150" text-anchor="start" font-family="Rubik, sans-serif" font-weight="900" font-size="172" textLength="892" lengthAdjust="spacingAndGlyphs">À L'EMPIRE.</text>
+            </clipPath>
+          </defs>
+          <g clip-path="url(#empClip)">
+            <rect x="-30" y="-30" width="960" height="260" fill="url(#empGrad)"/>
+            <path id="empWave1" fill="#FF747E" opacity="0.55" d=""/>
+            <path id="empWave2" fill="#FF9098" opacity="0.4" d=""/>
+            <g id="empBubbles"></g>
+          </g>
+          <text id="empMeasure" x="2" y="150" text-anchor="start" font-family="Rubik, sans-serif" font-weight="900" font-size="172" textLength="892" lengthAdjust="spacingAndGlyphs" fill="none" aria-hidden="true">À L'EMPIRE.</text>
+        </svg>
+      </span></h1>
+      <p class="ph-sub">Nanterre, un sac à dos, une canette transparente et un nom volé au mouvement Dada. L'histoire vraie d'une marque née dans la rue — racontée chapitre par chapitre.</p>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="story-wrap container">
+
+    <!-- tuyau de jus central, courbé, qui se remplit au scroll -->
+    <div class="juice-pipe" aria-hidden="true">
+      <svg id="juicePipe" viewBox="0 0 100 1000" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="juiceGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FF3B45"/><stop offset="0.5" stop-color="#E2001A"/><stop offset="1" stop-color="#B00010"/>
+          </linearGradient>
+          <clipPath id="pipeShape"><path id="pipePath" d=""/></clipPath>
+          <clipPath id="pipeReveal"><path id="pipeRevealPath" d="M -10 0 L 110 0 L 110 0 L -10 0 Z"/></clipPath>
+          <linearGradient id="pipeFadeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff"/><stop offset="0.84" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="pipeFade" maskUnits="userSpaceOnUse" x="-10" y="0" width="120" height="1000"><rect x="-10" y="0" width="120" height="1000" fill="url(#pipeFadeGrad)"/></mask>
+        </defs>
+        <g mask="url(#pipeFade)">
+          <path id="pipeTrackPath" class="pipe-track" d=""/>
+          <g clip-path="url(#pipeShape)"><g clip-path="url(#pipeReveal)">
+            <rect x="-10" y="0" width="120" height="1000" fill="url(#juiceGrad)"/>
+          </g></g>
+        </g>
+      </svg>
+      <div class="pipe-bubbles" id="pipeBubbles"></div>
+    </div>
+
+    <article class="story" style="--c:#E2001A">
+      <div class="story-media">
+        <img src="assets/photos/nanterre-tours.jpg" alt="Les tours Aillaud (Tours Nuages) de Nanterre" loading="lazy" />
+        <span class="story-year">90s</span>
+      </div>
+      <div class="story-text">
+        <p class="section-tag"><span>01</span> Les origines</p>
+        <h2 class="reveal-lines">Nanterre,<br/>l'école de la débrouille</h2>
+        <p>Une famille modeste dans le 92. Très tôt, les petits boulots s'enchaînent — marché, voiturier, bagagiste, livreur — puis une pizzeria remise à flot. La niaque, déjà, comme seul moteur.</p>
+      </div>
+    </article>
+
+    <article class="story" style="--c:#1FA98C">
+      <div class="story-media">
+        <img src="assets/photos/boisson-malaisie.jpg" alt="Boisson pétillante fruitée découverte en Malaisie" loading="lazy" />
+        <span class="story-year">2006</span>
+      </div>
+      <div class="story-text">
+        <p class="section-tag"><span>02</span> Le déclic</p>
+        <h2 class="reveal-lines">Le voyage<br/>qui change tout</h2>
+        <p>Sac sur le dos, direction l'Australie puis l'Asie du Sud-Est. En Malaisie, une boisson pétillante et fruitée le marque : rien de tel en France, où les rayons tournent en rond. L'idée est née.</p>
+      </div>
+    </article>
+
+    <article class="story" style="--c:#E3023B">
+      <div class="story-media">
+        <img src="assets/photos/art-boisson.jpg" alt="Canette Dada tenue en main" loading="lazy" />
+        <span class="story-year">2007</span>
+      </div>
+      <div class="story-text">
+        <p class="section-tag"><span>03</span> La création</p>
+        <h2 class="reveal-lines">Dada<br/>voit le jour</h2>
+        <p>Retour au pays, à Nanterre. Il ose une canette transparente, jamais vue, et un nom emprunté au mouvement Dada. Pas un soda de plus : une attitude, une couleur, un goût qui se voit à travers la canette.</p>
+      </div>
+    </article>
+
+    <article class="story" style="--c:#F0A93B">
+      <div class="story-media">
+        <img src="assets/photos/cite-dada.jpg" alt="Jeune de la cité posé avec des canettes Dada devant un mur graffé" loading="lazy" />
+        <span class="story-year">2015</span>
+      </div>
+      <div class="story-text">
+        <p class="section-tag"><span>04</span> L'ascension</p>
+        <h2 class="reveal-lines">La rue<br/>adopte la marque</h2>
+        <p>Épiceries, snacks, terrasses… Dada devient un réflexe pour toute une génération. Le bouche-à-oreille fait le reste, ville après ville, et la communauté grandit.</p>
+      </div>
+    </article>
+
+    <article class="story" style="--c:#E2001A">
+      <div class="story-media">
+        <img src="assets/photos/paris-cherry.jpg" alt="Canette Dada Cola Cherry géante au-dessus de Paris" loading="lazy" />
+        <span class="story-year">2026</span>
+      </div>
+      <div class="story-text">
+        <p class="section-tag"><span>05</span> Aujourd'hui</p>
+        <h2 class="reveal-lines">Plus grand<br/>que la ville</h2>
+        <p>13 parfums, la grande distribution, des collabs avec la scène rap. Dada côtoie désormais les géants des rayons — sans jamais renier d'où elle vient.</p>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- CHIFFRES -->
+  <section class="histoire-figures">
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><span class="num" data-count="2007">2007</span><span class="lab">Année zéro · Nanterre</span></div>
+        <div class="stat"><span class="num" data-count="13">13</span><span class="lab">Parfums dans la gamme</span></div>
+        <div class="stat"><span class="num" data-suffix="K+" data-count="46">46K+</span><span class="lab">La team Dada</span></div>
+        <div class="stat"><span class="num" data-suffix="+" data-count="2000">2000+</span><span class="lab">Points de vente</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container cta-inner">
+      <h2 class="cta-title">Goûte</h2>
+      <div class="legende-wrap">
+        <svg id="legendeSvg" class="legende-svg" viewBox="0 0 760 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="la légende">
+          <defs>
+            <linearGradient id="legGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FF3B45"/><stop offset="1" stop-color="#C2000F"/>
+            </linearGradient>
+            <clipPath id="legTextClip">
+              <text x="380" y="152" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="160" textLength="720" lengthAdjust="spacingAndGlyphs">la légende.</text>
+            </clipPath>
+          </defs>
+          <text class="leg-empty" x="380" y="152" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="160" textLength="720" lengthAdjust="spacingAndGlyphs">la légende.</text>
+          <g clip-path="url(#legTextClip)">
+            <g id="legLiquid">
+              <rect x="-60" y="20" width="880" height="780" fill="url(#legGrad)"/>
+              <path id="legWave" fill="url(#legGrad)" d=""/>
+              <g id="legBubbles"></g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <p>13 parfums nés de cette histoire. Trouve le tien.</p>
+      <a href="particuliers.html" class="btn btn-primary lg" data-cursor="Voir">Découvrir la gamme</a>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="assets/brand/logo-dada-white.png" alt="DADA" class="footer-logo" />
+      <p>La boisson qui bouscule les codes. Née à Nanterre en 2007.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explorer</h5>
+      <a href="particuliers.html">La gamme</a>
+      <a href="particuliers.html#trouver">Où acheter</a>
+      <a href="histoire.html">L'histoire</a>
+      <a href="professionnels.html">Professionnels</a>
+    </div>
+    <div class="footer-col">
+      <h5>La marque</h5>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="professionnels.html">Espace pro</a>
+      <a href="collaborations.html">Collaborations</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Suivre</h5>
+      <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener">TikTok</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <p>© 2026 Dada Drinks — site concept de démonstration.</p>
+    <p class="legal">Pour votre santé, mangez au moins 5 fruits et légumes par jour. · mangerbouger.fr</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/main.js?v=53"></script>
+</body>
+</html>

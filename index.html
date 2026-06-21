@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DADA — La boisson qui bouscule les codes</title>
+<meta name="description" content="Dada, la boisson pétillante et fruitée née en 2007 à Nanterre. 13 parfums, des fines bulles, zéro compromis. Plus qu'une boisson, un mode de vie." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=53" />
+</head>
+<body>
+
+<!-- GRAIN / NOISE OVERLAY -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
+
+<!-- SPLIT INTRO -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-panel intro-top"><span class="intro-word">DADA</span></div>
+  <div class="intro-panel intro-bottom"><span class="intro-word">DADA</span></div>
+  <div class="intro-streak" id="introStreak"></div>
+</div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo" data-cursor="Accueil">
+    <img src="assets/brand/logo-dada-white.png" alt="DADA Drinks" />
+  </a>
+  <nav class="nav-links">
+    <a href="particuliers.html" data-page="particuliers.html">Particuliers</a>
+    <a href="professionnels.html" data-page="professionnels.html">Professionnels</a>
+    <a href="collaborations.html" data-page="collaborations.html">Collaborations</a>
+    <a href="histoire.html" data-page="histoire.html">L'histoire</a>
+  </nav>
+  <a href="contact.html" class="btn btn-nav" data-cursor="Go">Contact <span class="btn-dot"></span></a>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+</header>
+
+<!-- ZOOM PARALLAX INTRO -->
+<section class="zoom" id="zoomParallax" aria-label="Entrée animée Dada">
+  <div class="zoom-pin">
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-4.jpg" alt="Dada — un homme assis tient une canette Dada Lemon : « Ne cherche pas à comprendre »" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-1.jpg" alt="" aria-hidden="true" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-2.jpg" alt="" aria-hidden="true" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-3.jpg" alt="" aria-hidden="true" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-center.jpg" alt="" aria-hidden="true" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-5.jpg" alt="" aria-hidden="true" /></div></div>
+    <div class="zoom-el"><div class="zoom-img"><img src="assets/photos/zoom-6.jpg" alt="" aria-hidden="true" /></div></div>
+  </div>
+</section>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-mesh"></div>
+    <div class="hero-glow" id="heroGlow"></div>
+    <div class="hero-rings"></div>
+  </div>
+
+  <div class="hero-marquee-bg" aria-hidden="true">
+    <div class="hmb-track"><span>DADA</span><span>DADA</span><span>DADA</span><span>DADA</span></div>
+  </div>
+
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="dot"></span> Pétillante &amp; fruitée · depuis 2007</p>
+      <h1 class="hero-title">
+        <span class="line"><span class="w">La</span> <span class="w">boisson</span></span>
+        <span class="line"><span class="w">qui</span> <span class="w bouscule-w"><svg class="bouscule-svg" viewBox="0 0 480 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="bouscule">
+          <defs>
+            <linearGradient id="bousGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF3B45"/><stop offset="1" stop-color="#C2000F"/></linearGradient>
+            <clipPath id="bousClip"><text x="240" y="84" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="100" textLength="472" lengthAdjust="spacingAndGlyphs">BOUSCULE</text></clipPath>
+          </defs>
+          <text class="bous-empty" x="240" y="84" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="900" font-size="100" textLength="472" lengthAdjust="spacingAndGlyphs">BOUSCULE</text>
+          <g clip-path="url(#bousClip)"><g id="bousLiquid">
+            <rect x="-40" y="0" width="560" height="200" fill="url(#bousGrad)"/>
+            <path id="bousWave" fill="url(#bousGrad)" d=""/>
+            <g id="bousBubbles"></g>
+          </g></g>
+        </svg></span></span>
+        <span class="line"><span class="w">les</span> <span class="w">codes.</span></span>
+      </h1>
+      <p class="hero-sub">Des fines bulles, des arômes de vrais fruits et une canette qui ne ressemble à aucune autre. <strong>Plus qu'une boisson, un mode de vie.</strong></p>
+      <div class="hero-actions">
+        <a href="#gamme" class="btn btn-primary" data-cursor="Voir">Découvrir la gamme</a>
+        <a href="#experience" class="btn btn-ghost" data-cursor="Play">L'expérience Dada</a>
+      </div>
+    </div>
+
+    <div class="hero-stage" id="heroStage">
+      <figure class="hero-photo" id="heroPhoto">
+        <img src="assets/photos/zoom-4.jpg" alt="Un homme assis tient une canette Dada Lemon — « Ceci n'est pas qu'une boisson »" draggable="false" />
+      </figure>
+    </div>
+  </div>
+
+  <a href="#manifeste" class="scroll-cue" data-cursor="Scroll"><span>Scroll</span><i></i></a>
+</section>
+
+<!-- MARQUEE BAND -->
+<section class="band" aria-hidden="true">
+  <div class="band-track">
+    <span>Pétillante</span><b>✦</b><span>Fruitée</span><b>✦</b><span>Sans compromis</span><b>✦</b>
+    <span>Canette transparente</span><b>✦</b><span>13 parfums</span><b>✦</b><span>Made in banlieue</span><b>✦</b>
+    <span>Pétillante</span><b>✦</b><span>Fruitée</span><b>✦</b><span>Sans compromis</span><b>✦</b>
+    <span>Canette transparente</span><b>✦</b><span>13 parfums</span><b>✦</b><span>Made in banlieue</span><b>✦</b>
+  </div>
+</section>
+
+<!-- MANIFESTE -->
+<section class="manifeste" id="manifeste">
+  <div class="container">
+    <p class="section-tag"><span>01</span> Manifeste</p>
+    <h2 class="reveal-lines big-statement">
+      On est né dans le 92, avec une idée folle&nbsp;: rendre la pétillante <em>vivante</em>. Pas un soda de plus — une attitude, une couleur, un goût qui se voit à travers la canette.
+    </h2>
+    <div class="stats">
+      <div class="stat"><span class="num" data-count="2007">2007</span><span class="lab">Année zéro · Nanterre</span></div>
+      <div class="stat"><span class="num" data-count="13">13</span><span class="lab">Parfums dans la gamme</span></div>
+      <div class="stat"><span class="num" data-count="33">33</span><span class="lab">cl de fines bulles</span></div>
+      <div class="stat"><span class="num" data-suffix="K+" data-count="46">46K+</span><span class="lab">La team Dada</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMME (pinned horizontal) -->
+<section class="gamme" id="gamme">
+  <div class="gamme-intro container">
+    <p class="section-tag"><span>02</span> La gamme</p>
+    <h2 class="reveal-lines">13 parfums.<br/><span class="accentword gradient-text">Zéro limite.</span></h2>
+    <p class="muted">Glisse pour explorer toute la collection. Chaque canette, un fruit, une couleur, une humeur.</p>
+    <a href="particuliers.html" class="btn btn-ghost" data-cursor="Shop" style="margin-top:22px">Voir toute la gamme</a>
+  </div>
+
+  <div class="gamme-pin" id="gammePin">
+    <div class="gamme-track" id="gammeTrack">
+      <!-- panels injected by JS -->
+    </div>
+    <div class="gamme-progress"><span id="gammeBar"></span></div>
+  </div>
+</section>
+
+<!-- EXPERIENCE : scrubbed can + split reveal -->
+<section class="experience" id="experience">
+  <div class="exp-sticky">
+    <div class="exp-can-col">
+      <div class="exp-bubbles" id="expBubbles" aria-hidden="true"></div>
+      <img src="assets/cans/clean/mojito.png?v=2" alt="Canette Dada" class="exp-can" id="expCan" draggable="false" />
+    </div>
+    <div class="exp-text-col">
+      <p class="section-tag light"><span>03</span> L'expérience</p>
+      <div class="exp-step" data-step="0">
+        <h3 class="reveal-lines">La canette <span class="accentword">transparente</span></h3>
+        <p>En 2007, on a été les premiers à oser. Tu vois le liquide, tu vois les bulles. Une signature qu'on n'a jamais lâchée.</p>
+      </div>
+      <div class="exp-step" data-step="1">
+        <h3 class="reveal-lines">Des <span class="accentword">fines bulles</span>, du vrai fruit</h3>
+        <p>Une eau pétillante aromatisée, dosée pour la fraîcheur. Assez de peps pour réveiller, assez de fruit pour kiffer.</p>
+      </div>
+      <div class="exp-step" data-step="2">
+        <h3 class="reveal-lines">Un goût qui <span class="accentword">bouscule</span></h3>
+        <p>On n'imite personne. Litchi, mojito, mangue, cola cherry… des associations qui sortent du rang, pensées pour ta génération.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BANDE PHOTOS (réalisme) -->
+<section class="photo-band" aria-label="Dada dans la vraie vie">
+  <div class="photo-track">
+    <img src="assets/photos/street-bags.jpg" alt="Dada dans la rue" loading="lazy" />
+    <img src="assets/photos/paris-cherry.jpg" alt="Dada à Paris" loading="lazy" />
+    <img src="assets/photos/stadium.jpg" alt="Dada au stade" loading="lazy" />
+    <img src="assets/photos/street-mojito.jpg" alt="Dada Mojito en ville" loading="lazy" />
+    <img src="assets/photos/art-boisson.jpg" alt="Ceci n'est pas qu'une boisson" loading="lazy" />
+    <img src="assets/photos/chalk-cans.jpg" alt="Dada à la craie" loading="lazy" />
+    <img src="assets/photos/cola-spill.jpg" alt="Dommage cola-téral" loading="lazy" />
+    <img src="assets/photos/lemon-splash.jpg" alt="Dada Lemon" loading="lazy" />
+    <img src="assets/photos/teaser-feat.jpg" alt="Dada teaser" loading="lazy" />
+    <img src="assets/photos/street-bags.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/paris-cherry.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/stadium.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/street-mojito.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/art-boisson.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/chalk-cans.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/cola-spill.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/lemon-splash.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <img src="assets/photos/teaser-feat.jpg" alt="" aria-hidden="true" loading="lazy" />
+  </div>
+</section>
+
+<!-- HISTOIRE — teaser vers la page dédiée -->
+<section class="hist-teaser">
+  <div class="container">
+    <div class="hist-teaser-card">
+      <img class="htc-img" src="assets/photos/street-graffiti.jpg" alt="" aria-hidden="true" loading="lazy" />
+      <div class="htc-body">
+        <span class="htc-tag">04 — L'histoire</span>
+        <h2 class="reveal-lines">De la banlieue<br/><span class="gradient-text">à l'empire.</span></h2>
+        <p>2007, Nanterre. Un voyage en Asie, une canette transparente jamais vue, un nom volé au mouvement Dada. Découvre l'histoire complète, chapitre par chapitre.</p>
+        <a href="histoire.html" class="btn btn-primary" data-cursor="Lire">Lire l'histoire</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CULTURE / COLLABS -->
+<section class="culture" id="culture">
+  <div class="container">
+    <p class="section-tag light"><span>05</span> Culture</p>
+    <h2 class="reveal-lines">Dada s'invite<br/>dans <span class="accentword gradient-text">la culture.</span></h2>
+    <div class="culture-grid">
+      <div class="cult-card big">
+        <span class="cc-tag">Musique</span>
+        <h3>La bande-son de la rue</h3>
+        <p>Des collabs avec les artistes qui font le son d'aujourd'hui. Quand la pétillante rencontre le rap, ça fait du bruit.</p>
+      </div>
+      <div class="cult-card">
+        <span class="cc-tag">Street</span>
+        <h3>Sneakers &amp; terrasses</h3>
+        <p>Du bitume aux festivals, Dada est partout où ça vit.</p>
+      </div>
+      <div class="cult-card">
+        <span class="cc-tag">Communauté</span>
+        <h3>La team Dada</h3>
+        <p>Des dizaines de milliers de fans qui partagent, taguent et défendent la marque.</p>
+      </div>
+    </div>
+    <div class="culture-marquee" aria-hidden="true">
+      <div class="cm-track"><span>#BousculeLesCodes</span><b>·</b><span>#TeamDada</span><b>·</b><span>#DispoChez</span><b>·</b><span>#DadaTaste</span><b>·</b><span>#BousculeLesCodes</span><b>·</b><span>#TeamDada</span><b>·</b><span>#DispoChez</span><b>·</b><span>#DadaTaste</span><b>·</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- TROUVER -->
+<section class="trouver" id="trouver">
+  <div class="container">
+    <div class="trouver-head">
+      <div>
+        <p class="section-tag"><span>06</span> Où trouver Dada</p>
+        <h2 class="reveal-lines">Dispo près<br/>de <span class="accentword gradient-text">chez toi.</span></h2>
+      </div>
+      <a href="#" class="btn btn-primary lg" data-cursor="Map">Trouver un point de vente</a>
+    </div>
+    <div class="retailers" id="retailers">
+      <span>Carrefour</span><span>Auchan</span><span>Leclerc</span><span>Franprix</span><span>Metro</span><span>B&amp;M</span><span>Maximarket</span><span>Et + de 2 000 points de vente</span>
+    </div>
+  </div>
+</section>
+
+<!-- ACHETER (particuliers / pros) -->
+<section class="buy" id="acheter">
+  <div class="container">
+    <div class="page-section-head">
+      <p class="section-tag"><span>07</span> Acheter</p>
+      <h2 class="reveal-lines">Où veux-tu<br/><span class="gradient-text">ta Dada ?</span></h2>
+      <p>Particulier ou professionnel : choisis ton canal et fais le plein.</p>
+    </div>
+    <div class="buy-grid">
+      <a class="buy-card buy-card--b2c" href="particuliers.html" data-cursor="Go">
+        <div class="buy-glow" aria-hidden="true"></div>
+        <img class="buy-can" src="assets/cans/clean/mangue.png?v=2" alt="" aria-hidden="true" draggable="false" />
+        <div class="buy-meta">
+          <span class="buy-kicker">Particuliers</span>
+          <h3>Achète la gamme</h3>
+          <p>Les 13 parfums et tous les points de vente près de chez toi.</p>
+          <span class="buy-cta">J'en profite <span class="buy-arrow">→</span></span>
+        </div>
+      </a>
+      <a class="buy-card buy-card--b2b" href="professionnels.html" data-cursor="Go">
+        <div class="buy-glow" aria-hidden="true"></div>
+        <img class="buy-can" src="assets/cans/clean/cola.png?v=2" alt="" aria-hidden="true" draggable="false" />
+        <div class="buy-meta">
+          <span class="buy-kicker">Professionnels</span>
+          <h3>Deviens revendeur</h3>
+          <p>Packs 24×33, marges attractives, frigos &amp; PLV. On t'accompagne.</p>
+          <span class="buy-cta">Devenir partenaire <span class="buy-arrow">→</span></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / NEWSLETTER -->
+<section class="cta">
+  <div class="cta-glow" aria-hidden="true"></div>
+  <div class="container cta-inner">
+    <h2 class="reveal-lines cta-title">Rejoins<br/><span class="gradient-text">le mouvement.</span></h2>
+    <p>Nouveaux parfums, drops, collabs : sois au courant avant tout le monde.</p>
+    <form class="newsletter" id="newsletter" onsubmit="return false;">
+      <input type="email" placeholder="ton@email.com" aria-label="Email" required />
+      <button class="btn btn-primary" data-cursor="OK">Je m'inscris</button>
+    </form>
+    <p class="cta-note">En t'inscrivant, tu rejoins la team Dada. Pas de spam, que du bon.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="assets/brand/logo-dada-white.png" alt="DADA" class="footer-logo" />
+      <p>La boisson qui bouscule les codes. Née à Nanterre en 2007.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explorer</h5>
+      <a href="particuliers.html">La gamme</a>
+      <a href="particuliers.html#trouver">Où acheter</a>
+      <a href="histoire.html">L'histoire</a>
+      <a href="professionnels.html">Professionnels</a>
+    </div>
+    <div class="footer-col">
+      <h5>La marque</h5>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="professionnels.html">Espace pro</a>
+      <a href="collaborations.html">Collaborations</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Suivre</h5>
+      <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener">TikTok</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <p>© 2026 Dada Drinks — site concept de démonstration.</p>
+    <p class="legal">Pour votre santé, mangez au moins 5 fruits et légumes par jour. · mangerbouger.fr</p>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/main.js?v=53"></script>
+</body>
+</html>

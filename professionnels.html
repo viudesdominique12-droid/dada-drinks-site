@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Professionnels — DADA</title>
+<meta name="description" content="Dada pour les professionnels : devenez revendeur ou distributeur. Packs 24×33cl, marges attractives, une marque qui tourne." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=53" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
+
+<!-- NAV -->
+<header class="nav scrolled" id="nav">
+  <a href="index.html" class="nav-logo" data-cursor="Accueil"><img src="assets/brand/logo-dada-white.png" alt="DADA Drinks" /></a>
+  <nav class="nav-links">
+    <a href="particuliers.html" data-page="particuliers.html">Particuliers</a>
+    <a href="professionnels.html" data-page="professionnels.html">Professionnels</a>
+    <a href="collaborations.html" data-page="collaborations.html">Collaborations</a>
+    <a href="histoire.html" data-page="histoire.html">L'histoire</a>
+  </nav>
+  <a href="contact.html" class="btn btn-nav" data-cursor="Go">Contact <span class="btn-dot"></span></a>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+</header>
+
+<main>
+  <!-- PAGE HERO -->
+  <section class="page-hero pro-hero" style="--accent:#E2001A">
+    <div class="ph-bg" aria-hidden="true">
+      <video class="ph-video" src="assets/video/dada-sirha.mp4" poster="assets/video/dada-sirha-poster.jpg"
+             autoplay muted loop playsinline></video>
+    </div>
+    <div class="container">
+      <div class="ph-copy">
+        <p class="eyebrow"><span class="dot"></span> Professionnels · B2B</p>
+        <h1 class="reveal-lines">Dada pour<br/><span class="gradient-text">les pros.</span></h1>
+        <p class="ph-sub">Épiceries, snacks, restaurants, CHR, grossistes : faites entrer dans vos rayons la pétillante qui bouscule les codes — et qui se vend toute seule.</p>
+        <a href="#devenir-partenaire" class="btn btn-primary lg" data-cursor="Go" style="margin-top:30px">Devenir partenaire</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVANTAGES -->
+  <section class="benefits-intro">
+    <div class="container">
+      <div class="page-section-head">
+        <p class="section-tag"><span>01</span> Pourquoi Dada</p>
+        <h2>Une marque qui <span class="gradient-text">tourne.</span></h2>
+        <p>Un produit différenciant, une communauté engagée et un soutien qui font la différence en rayon. <span class="deck-hint">Déroule pour voir les atouts ↓</span></p>
+      </div>
+    </div>
+  </section>
+  <!-- AVANTAGES — deck de cartes qui défile au scroll -->
+  <section class="benefits deck" id="benefitsDeck" aria-label="Pourquoi choisir Dada">
+    <div class="deck-pin" id="deckPin">
+      <div class="deck-stage" id="deckStage"><!-- 6 cartes injectées par JS --></div>
+      <div class="deck-rail" id="deckRail"></div>
+      <div class="deck-count" id="deckCount">01 / 06</div>
+    </div>
+  </section>
+
+  <!-- PACKS -->
+  <section class="packs">
+    <div class="container">
+      <div class="page-section-head">
+        <p class="section-tag"><span>02</span> La gamme pro</p>
+        <h2>13 parfums, <span class="gradient-text">en packs.</span></h2>
+        <p>Toute la gamme disponible en packs de 24 canettes de 33cl.</p>
+      </div>
+      <div class="pack-grid" id="packGrid"><!-- packs injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- FRIGOS & PLV -->
+  <section class="frigos">
+    <div class="container">
+      <div class="page-section-head">
+        <p class="section-tag"><span>03</span> Frigos &amp; PLV</p>
+        <h2>On habille <span class="gradient-text">ton point de vente.</span></h2>
+        <p>Frigos vitrés aux couleurs Dada, mis à disposition de nos partenaires : tes boissons au frais, ta vitrine qui claque, des ventes qui suivent.</p>
+      </div>
+      <div class="fridge-grid">
+        <article class="fridge-card">
+          <span class="fr-tag">Slim</span>
+          <img src="assets/photos/frigo-slim.png" alt="Frigo vitré Dada modèle slim" loading="lazy" />
+          <h3>Frigo Slim</h3>
+          <p class="fr-cap">1 porte · format compact pour les petits espaces</p>
+          <div class="fr-buy"><span class="fr-price">149&nbsp;€</span><button class="fr-add" type="button" data-key="frigo-slim" data-name="Frigo Slim" data-price="149" data-img="assets/photos/frigo-slim.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+        </article>
+        <article class="fridge-card">
+          <span class="fr-tag">Moyen</span>
+          <img src="assets/photos/frigo-moyen.png" alt="Frigo vitré Dada modèle moyen" loading="lazy" />
+          <h3>Frigo Moyen</h3>
+          <p class="fr-cap">1 porte · le grand classique des points de vente</p>
+          <div class="fr-buy"><span class="fr-price">249&nbsp;€</span><button class="fr-add" type="button" data-key="frigo-moyen" data-name="Frigo Moyen" data-price="249" data-img="assets/photos/frigo-moyen.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+        </article>
+        <article class="fridge-card">
+          <span class="fr-tag">Double</span>
+          <img src="assets/photos/frigo-double.png" alt="Frigo vitré Dada modèle double porte" loading="lazy" />
+          <h3>Frigo Double</h3>
+          <p class="fr-cap">2 portes · grande capacité, visibilité maximale</p>
+          <div class="fr-buy"><span class="fr-price">399&nbsp;€</span><button class="fr-add" type="button" data-key="frigo-double" data-name="Frigo Double" data-price="399" data-img="assets/photos/frigo-double.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVENIR PARTENAIRE -->
+  <section class="container" id="devenir-partenaire">
+    <div class="pro-cta">
+      <h2>Devenez partenaire Dada.</h2>
+      <p>Laissez vos coordonnées : notre équipe pro vous recontacte sous 48h avec le tarif revendeur et les conditions de livraison.</p>
+      <form class="pro-form" onsubmit="return false;">
+        <input type="text" placeholder="Nom de l'établissement" aria-label="Établissement" required />
+        <input type="email" placeholder="Email pro" aria-label="Email" required />
+        <button class="btn" data-cursor="Envoyer">Être recontacté</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="assets/brand/logo-dada-white.png" alt="DADA" class="footer-logo" />
+      <p>La boisson qui bouscule les codes. Née à Nanterre en 2007.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explorer</h5>
+      <a href="particuliers.html">La gamme</a>
+      <a href="particuliers.html#trouver">Où acheter</a>
+      <a href="histoire.html">L'histoire</a>
+      <a href="professionnels.html">Professionnels</a>
+    </div>
+    <div class="footer-col">
+      <h5>La marque</h5>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="professionnels.html">Espace pro</a>
+      <a href="collaborations.html">Collaborations</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Suivre</h5>
+      <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener">TikTok</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <p>© 2026 Dada Drinks — site concept de démonstration.</p>
+    <p class="legal">Pour votre santé, mangez au moins 5 fruits et légumes par jour. · mangerbouger.fr</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/main.js?v=53"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Particuliers — La gamme DADA</title>
+<meta name="description" content="Découvre toute la gamme Dada : 13 parfums pétillants et fruités, et tous les points de vente près de chez toi." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=53" />
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
+
+<!-- NAV -->
+<header class="nav scrolled" id="nav">
+  <a href="index.html" class="nav-logo" data-cursor="Accueil"><img src="assets/brand/logo-dada-white.png" alt="DADA Drinks" /></a>
+  <nav class="nav-links">
+    <a href="particuliers.html" data-page="particuliers.html">Particuliers</a>
+    <a href="professionnels.html" data-page="professionnels.html">Professionnels</a>
+    <a href="collaborations.html" data-page="collaborations.html">Collaborations</a>
+    <a href="histoire.html" data-page="histoire.html">L'histoire</a>
+  </nav>
+  <a href="contact.html" class="btn btn-nav" data-cursor="Go">Contact <span class="btn-dot"></span></a>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+</header>
+
+<main>
+  <!-- PAGE HERO -->
+  <section class="page-hero hero-split" style="--accent:#E63950;--hero-tint:#FBE7EA">
+    <div class="container ph-grid">
+      <div class="ph-copy">
+        <p class="eyebrow"><span class="dot"></span> Particuliers · 13 parfums</p>
+        <h1 class="reveal-lines">Toute la<br/><span class="gradient-text">gamme Dada.</span></h1>
+        <p class="ph-sub">Des fines bulles, des arômes de vrais fruits, une canette transparente unique. Trouve ton parfum et fais le plein de peps.</p>
+      </div>
+      <div class="ph-visual">
+        <img src="assets/photos/street-bags.jpg" alt="Livreur en rouge tenant des sacs Dada dans la rue — TEST DADA" loading="eager" draggable="false" />
+      </div>
+    </div>
+  </section>
+
+  <!-- BOUTIQUE -->
+  <section class="shop">
+    <div class="container">
+      <div class="page-section-head">
+        <p class="section-tag"><span>01</span> La collection</p>
+        <h2>13 parfums, <span class="gradient-text">zéro limite.</span></h2>
+        <p>Cola, fruits, mojito, ice tea… une couleur et une humeur pour chaque envie.</p>
+      </div>
+      <div class="shop-grid" id="shopGrid"><!-- cards injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- TROUVER -->
+  <section class="trouver" id="trouver">
+    <div class="container">
+      <div class="trouver-head">
+        <div>
+          <p class="section-tag"><span>02</span> Où trouver Dada</p>
+          <h2 class="reveal-lines">Dispo près<br/>de <span class="accentword gradient-text">chez toi.</span></h2>
+        </div>
+        <a href="#" class="btn btn-primary lg" data-cursor="Map">Trouver un point de vente</a>
+      </div>
+      <div class="retailers" id="retailers">
+        <span>Carrefour</span><span>Auchan</span><span>Leclerc</span><span>Franprix</span><span>Metro</span><span>B&amp;M</span><span>Maximarket</span><span>Et + de 2 000 points de vente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="container cta-inner">
+      <h2 class="reveal-lines cta-title">Rejoins<br/><span class="gradient-text">le mouvement.</span></h2>
+      <p>Nouveaux parfums, drops, collabs : sois au courant avant tout le monde.</p>
+      <form class="newsletter" id="newsletter" onsubmit="return false;">
+        <input type="email" placeholder="ton@email.com" aria-label="Email" required />
+        <button class="btn btn-primary" data-cursor="OK">Je m'inscris</button>
+      </form>
+      <p class="cta-note">En t'inscrivant, tu rejoins la team Dada. Pas de spam, que du bon.</p>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="assets/brand/logo-dada-white.png" alt="DADA" class="footer-logo" />
+      <p>La boisson qui bouscule les codes. Née à Nanterre en 2007.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explorer</h5>
+      <a href="particuliers.html">La gamme</a>
+      <a href="particuliers.html#trouver">Où acheter</a>
+      <a href="histoire.html">L'histoire</a>
+      <a href="professionnels.html">Professionnels</a>
+    </div>
+    <div class="footer-col">
+      <h5>La marque</h5>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="professionnels.html">Espace pro</a>
+      <a href="collaborations.html">Collaborations</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Suivre</h5>
+      <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@dadadrinks" target="_blank" rel="noopener">TikTok</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <p>© 2026 Dada Drinks — site concept de démonstration.</p>
+    <p class="legal">Pour votre santé, mangez au moins 5 fruits et légumes par jour. · mangerbouger.fr</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/main.js?v=53"></script>
+</body>
+</html>

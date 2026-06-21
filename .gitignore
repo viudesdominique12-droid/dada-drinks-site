@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Médias bruts (source lourde, non utilisée par le site — le site lit assets/)
+Photos/
+Vidéos/
+
+# Outils / local
+.claude/
+.playwright-mcp/
+node_modules/
+*.log
