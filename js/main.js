@@ -450,7 +450,8 @@ gsap.utils.toArray('.num[data-count]').forEach(el=>{
    GAMME — horizontal pinned scroll
    ============================================================ */
 const gammePin = document.getElementById('gammePin');
-if (!REDUCED && gammePin && track){
+const GAMME_SWIPE = window.matchMedia('(max-width:760px)').matches;   // mobile → carrousel au doigt
+if (!REDUCED && gammePin && track && !GAMME_SWIPE){
   const pin = gammePin;
   const bar = document.getElementById('gammeBar');
   pin.style.setProperty('--gamme-c', FLAVORS[0].c);
@@ -472,6 +473,22 @@ if (!REDUCED && gammePin && track){
       }
     }
   });
+} else if (gammePin && track && GAMME_SWIPE){
+  // MOBILE : carrousel horizontal qui se fait glisser au doigt (snap),
+  // fond teinté selon la canette centrée (pas de pin, scroll naturel)
+  const pin = gammePin;
+  pin.classList.add('is-swipe');
+  pin.style.setProperty('--gamme-c', FLAVORS[0].c);
+  let raf = 0;
+  pin.addEventListener('scroll', ()=>{
+    if (raf) return;
+    raf = requestAnimationFrame(()=>{ raf = 0;
+      const r = pin.getBoundingClientRect(), center = r.left + r.width/2;
+      const cards = track.children; let best = 0, bd = 1e9;
+      for (let i=0;i<cards.length;i++){ const cr = cards[i].getBoundingClientRect(); const d = Math.abs((cr.left+cr.width/2)-center); if (d<bd){ bd=d; best=i; } }
+      pin.style.setProperty('--gamme-c', FLAVORS[Math.min(FLAVORS.length-1,best)].c);
+    });
+  }, { passive:true });
 } else if (gammePin && track){
   track.style.flexWrap = 'wrap';
   gammePin.style.height = 'auto';
@@ -822,8 +839,9 @@ if (!REDUCED){
     rail && rail.appendChild(t); return t;
   });
 
-  // Fallback : reduced-motion ou pas de ScrollTrigger → pile verticale lisible
-  if (REDUCED || typeof ScrollTrigger === 'undefined'){
+  // Fallback : reduced-motion, pas de ScrollTrigger, ou MOBILE → pile verticale lisible
+  // (sur petit écran l'animation du deck superpose les cartes/textes)
+  if (REDUCED || typeof ScrollTrigger === 'undefined' || window.matchMedia('(max-width:760px)').matches){
     section.classList.add('is-static');
     cards.forEach(c=> c.classList.add('is-active'));
     ticks.forEach(t=> t.classList.add('is-on'));

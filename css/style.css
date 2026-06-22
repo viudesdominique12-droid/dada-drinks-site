@@ -329,6 +329,14 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
 .flavor-card .fc-chip{display:inline-block;margin-top:16px;font-family:var(--font-display);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:7px 14px;border-radius:30px;background:rgba(0,0,0,.32);color:#fff;backdrop-filter:blur(4px)}
 .gamme-progress{position:absolute;left:6vw;right:6vw;bottom:30px;height:3px;background:rgba(255,255,255,.28);border-radius:3px;z-index:5}
 .gamme-progress span{display:block;height:100%;width:0;background:#fff;border-radius:3px}
+/* gamme MOBILE : carrousel horizontal au doigt (snap) au lieu du scroll pinné */
+.gamme-pin.is-swipe{position:relative;height:auto;display:block;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:24px 0 34px}
+.gamme-pin.is-swipe::-webkit-scrollbar{display:none}
+.gamme-pin.is-swipe::before{display:none}
+.gamme-pin.is-swipe .gamme-track{transform:none!important;display:flex;gap:16px;padding:0 11vw;width:max-content}
+.gamme-pin.is-swipe .flavor-card{flex:0 0 78vw;height:62vh;scroll-snap-align:center}
+.gamme-pin.is-swipe .gamme-progress{display:none}
 
 /* ---------- EXPERIENCE ---------- */
 .experience{position:relative;min-height:320vh;background:linear-gradient(180deg,var(--bg),#FFF6F0 50%,var(--bg))}
