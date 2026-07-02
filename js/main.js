@@ -376,10 +376,11 @@ applyFlavorTheme(document.querySelector('.fs-item.is-active')?.dataset.accent ||
    ============================================================ */
 const heroPhoto = document.getElementById('heroPhoto');
 if (heroPhoto && !REDUCED){
+  // hero cinéma : la photo (déjà « traversée » dans le zoom) se pose en
+  // douceur, le texte monte par-dessus
   const heroTL = gsap.timeline({ paused:true, defaults:{ ease:'power3.out' } });
   heroTL
-    .fromTo(heroPhoto, { autoAlpha:0, scale:1.22, yPercent:7 },
-                       { autoAlpha:1, scale:1, yPercent:0, duration:1.25, ease:'power4.out' })
+    .fromTo(heroPhoto, { scale:1.16 }, { scale:1, duration:1.7, ease:'power3.out' })
     .fromTo('.hero .eyebrow',       { autoAlpha:0, y:20 }, { autoAlpha:1, y:0, duration:0.7 }, 0.18)
     .fromTo('.hero-title .w',        { yPercent:120 },      { yPercent:0, duration:1.0, stagger:0.07 }, 0.22)
     .fromTo('.hero-sub',            { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:0.8 }, 0.5)
@@ -429,7 +430,9 @@ if (!REDUCED){
   fadeUp('.cult-card', { stagger:0.08, scrollTrigger:{ trigger:'.culture-grid', start:'top 82%' }});
   fadeUp('.gamme-intro .muted');
   fadeUp('.cta-inner > p, .newsletter, .cta-note');
-  fadeUp('.retailers span', { y:30, stagger:0.06, scrollTrigger:{ trigger:'.retailers', start:'top 88%' }});
+  // clearProps : sinon le transform inline résiduel écrase le :hover des cartes logos
+  fadeUp('.retailers span', { y:30, stagger:0.06, clearProps:'transform',
+    scrollTrigger:{ trigger:'.retailers', start:'top 88%' }});
 }
 
 /* ============================================================
@@ -1301,42 +1304,48 @@ document.addEventListener('click', e=>{
   if (fd) fd.addEventListener('click', e=> dadaFizz(e.clientX, e.clientY, 16));
 })();
 
-/* --- hero accueil : parallax + reflet sur la photo --- */
+/* --- hero cinéma : lent drift parallax de la photo au scroll --- */
 (function(){
   const photo = document.getElementById('heroPhoto');
   if (!photo || REDUCED) return;
-  photo.classList.add('is-live');
   const img = photo.querySelector('img');
   if (typeof ScrollTrigger !== 'undefined' && img){
     gsap.set(img, {scale:1.12});
-    gsap.fromTo(img, {yPercent:-5}, {yPercent:5, ease:'none',
+    gsap.fromTo(img, {yPercent:-4}, {yPercent:4, ease:'none',
       scrollTrigger:{ trigger:'.hero', start:'top bottom', end:'bottom top', scrub:true }});
   }
-  if (!COARSE){
-    const stage = document.getElementById('heroStage');
-    stage.style.perspective = '900px';
-    const rY = gsap.quickTo(photo,'rotationY',{duration:.7,ease:'power3'});
-    const rX = gsap.quickTo(photo,'rotationX',{duration:.7,ease:'power3'});
-    // perf : rect mis en cache au mouseenter (pas de layout par mousemove),
-    // écritures --gx/--gy limitées à une par frame via rAF
-    let rect=null, queued=false, mx=0, my=0;
-    stage.addEventListener('mouseenter', ()=>{ rect = photo.getBoundingClientRect(); });
-    window.addEventListener('resize', ()=>{ rect = null; });
-    stage.addEventListener('mousemove', e=>{
-      mx = e.clientX; my = e.clientY;
-      if (queued) return; queued = true;
-      requestAnimationFrame(()=>{
-        queued = false;
-        if (!rect) rect = photo.getBoundingClientRect();
-        const px = (mx-rect.left)/rect.width - .5;
-        const py = (my-rect.top)/rect.height - .5;
-        rY(px*6); rX(-py*5);
-        photo.style.setProperty('--gx', (28+px*44)+'%');
-        photo.style.setProperty('--gy', (18+py*30)+'%');
-      });
-    });
-    stage.addEventListener('mouseleave', ()=>{ rY(0); rX(0); rect=null; });
-  }
+})();
+
+/* ============================================================
+   V57 — traînée de bulles du curseur + bulles du CTA rouge
+   ============================================================ */
+(function(){
+  if (COARSE || REDUCED) return;
+  let lx=null, ly=null, acc=0, alive=0;
+  window.addEventListener('mousemove', e=>{
+    if (lx!==null) acc += Math.hypot(e.clientX-lx, e.clientY-ly);
+    lx=e.clientX; ly=e.clientY;
+    if (acc < 36 || alive >= 14) return;   // 1 bulle / ~36px de course, 14 max
+    acc = 0; alive++;
+    const b=document.createElement('span'); b.className='fizz-b fizz-t';
+    const s=gsap.utils.random(3,6.5);
+    b.style.width=b.style.height=s+'px';
+    b.style.left=(e.clientX-s/2+gsap.utils.random(-6,6))+'px';
+    b.style.top=(e.clientY-s/2+gsap.utils.random(-4,4))+'px';
+    document.body.appendChild(b);
+    gsap.to(b,{y:gsap.utils.random(-34,-14), x:gsap.utils.random(-10,10), opacity:0, scale:.35,
+      duration:gsap.utils.random(.5,.8), ease:'power1.out', onComplete:()=>{ b.remove(); alive--; }});
+  }, {passive:true});
+})();
+/* bulles du CTA : créées seulement quand la section devient visible
+   (même logique que le footer — pas de tweens infinis hors écran) */
+(function(){
+  const c = document.getElementById('ctaBubbles');
+  if (!c || REDUCED) return;
+  const io = new IntersectionObserver(es=>{ es.forEach(en=>{
+    if (en.isIntersecting){ makeBubbles(c, 12); io.disconnect(); }
+  });}, {threshold:.1});
+  io.observe(c);
 })();
 
 function boot(){ startIntro(); ScrollTrigger.refresh(); }

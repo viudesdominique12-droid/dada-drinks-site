@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://viudesdominique12-droid.github.io/dada-drinks-site/assets/photos/zoom-4.jpg" />
 <meta property="og:url" content="https://viudesdominique12-droid.github.io/dada-drinks-site/index.html" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="stylesheet" href="css/style.css?v=56" />
+<link rel="stylesheet" href="css/style.css?v=58" />
 </head>
 <body>
 
@@ -63,13 +63,12 @@
   </div>
 </section>
 
-<!-- HERO -->
-<section class="hero" id="top">
-  <div class="hero-bg" aria-hidden="true">
-    <div class="hero-mesh"></div>
-    <div class="hero-glow" id="heroGlow"></div>
-    <div class="hero-rings"></div>
+<!-- HERO — cinématique : la photo du zoom devient le décor -->
+<section class="hero hero--cinema" id="top">
+  <div class="hero-bgphoto" id="heroPhoto" aria-hidden="true">
+    <img src="assets/photos/zoom-4.jpg" alt="" draggable="false" />
   </div>
+  <div class="hero-shade" aria-hidden="true"></div>
 
   <div class="hero-marquee-bg" aria-hidden="true">
     <div class="hmb-track"><span>DADA</span><span>DADA</span><span>DADA</span><span>DADA</span></div>
@@ -99,12 +98,6 @@
         <a href="#gamme" class="btn btn-primary" data-cursor="Voir">Découvrir la gamme</a>
         <a href="#experience" class="btn btn-ghost" data-cursor="Play">L'expérience Dada</a>
       </div>
-    </div>
-
-    <div class="hero-stage" id="heroStage">
-      <figure class="hero-photo" id="heroPhoto">
-        <img src="assets/photos/zoom-4.jpg" alt="Un homme assis tient une canette Dada Lemon — « Ceci n'est pas qu'une boisson »" draggable="false" />
-      </figure>
     </div>
   </div>
 
@@ -225,16 +218,19 @@
     <h2 class="reveal-lines">Dada s'invite<br/>dans <span class="accentword gradient-text">la culture.</span></h2>
     <div class="culture-grid">
       <div class="cult-card big">
+        <img class="cc-bg" src="assets/photos/teaser-feat.jpg" alt="" aria-hidden="true" loading="lazy" />
         <span class="cc-tag">Musique</span>
         <h3>La bande-son de la rue</h3>
         <p>Des collabs avec les artistes qui font le son d'aujourd'hui. Quand la pétillante rencontre le rap, ça fait du bruit.</p>
       </div>
       <div class="cult-card">
+        <img class="cc-bg" src="assets/photos/street-mojito.jpg" alt="" aria-hidden="true" loading="lazy" />
         <span class="cc-tag">Street</span>
         <h3>Sneakers &amp; terrasses</h3>
         <p>Du bitume aux festivals, Dada est partout où ça vit.</p>
       </div>
       <div class="cult-card">
+        <img class="cc-bg" src="assets/photos/street-bags.jpg" alt="" aria-hidden="true" loading="lazy" />
         <span class="cc-tag">Communauté</span>
         <h3>La team Dada</h3>
         <p>Des dizaines de milliers de fans qui partagent, taguent et défendent la marque.</p>
@@ -256,8 +252,16 @@
       </div>
       <a href="particuliers.html#trouver" class="btn btn-primary lg" data-cursor="Map">Trouver un point de vente</a>
     </div>
-    <div class="retailers" id="retailers">
-      <span>Carrefour</span><span>Auchan</span><span>Leclerc</span><span>Franprix</span><span>Metro</span><span>B&amp;M</span><span>Maximarket</span><span>Et + de 2 000 points de vente</span>
+    <div class="retailers partner-logos" id="retailers">
+      <span class="partner"><img src="assets/partners/carrefour.png" alt="Carrefour" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/auchan.png" alt="Auchan" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/leclerc.png" alt="E.Leclerc" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/systeme-u.png" alt="Système U" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/intermarche.png" alt="Intermarché" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/franprix.png" alt="Franprix" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/g20.png" alt="Supermarchés G20" loading="lazy" /></span>
+      <span class="partner"><img src="assets/partners/metro.png" alt="Metro" loading="lazy" /></span>
+      <span class="partner partner-more">+ 2 000 points de vente</span>
     </div>
   </div>
 </section>
@@ -296,8 +300,9 @@
 </section>
 
 <!-- CTA / NEWSLETTER -->
-<section class="cta">
+<section class="cta cta--rouge">
   <div class="cta-glow" aria-hidden="true"></div>
+  <div class="cta-bubbles" id="ctaBubbles" aria-hidden="true"></div>
   <div class="container cta-inner">
     <h2 class="reveal-lines cta-title">Rejoins<br/><span class="gradient-text">le mouvement.</span></h2>
     <p>Nouveaux parfums, drops, collabs : sois au courant avant tout le monde.</p>
@@ -355,6 +360,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="js/main.js?v=56"></script>
+<script src="js/main.js?v=58"></script>
 </body>
 </html>
