@@ -1156,6 +1156,189 @@ if (!REDUCED){
   }
 })();
 
+/* ============================================================
+   POLISH v56 — wipe de page, jus de scroll, fizz, footer DADA,
+   parallax photo hero
+   ============================================================ */
+/* --- fizz : éclat de bulles (partagé) --- */
+function dadaFizz(x, y, n){
+  if (REDUCED) return;
+  for (let i=0; i<(n||10); i++){
+    const b = document.createElement('span');
+    b.className = 'fizz-b';
+    const s = gsap.utils.random(4,10);
+    b.style.width = b.style.height = s+'px';
+    b.style.left = (x-s/2)+'px'; b.style.top = (y-s/2)+'px';
+    document.body.appendChild(b);
+    gsap.fromTo(b, {opacity:1, scale:.6},
+      { x:gsap.utils.random(-36,36), y:gsap.utils.random(-74,-24), scale:1, opacity:0,
+        duration:gsap.utils.random(.55,1.05), ease:'power2.out', onComplete:()=>b.remove() });
+  }
+}
+/* ajout panier → fizz + pop de l'icône
+   (phase de capture : les boutons boutique font stopPropagation) */
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('.fc-add,.pk-add,.fr-add');
+  if (!btn) return;
+  let x=e.clientX, y=e.clientY;
+  if (!x && !y){ const r=btn.getBoundingClientRect(); x=r.left+r.width/2; y=r.top+r.height/2; }
+  dadaFizz(x, y, 12);
+  // on anime le SVG interne : le bouton a une transition CSS + un :hover
+  // transform qui entreraient en conflit avec un tween sur le bouton lui-même
+  const c = document.querySelector('.cart-toggle svg');
+  if (c && !REDUCED) gsap.fromTo(c, {scale:1}, {scale:1.28, duration:.16, yoyo:true, repeat:1,
+    ease:'power2.out', transformOrigin:'50% 50%', clearProps:'transform'});
+}, true);
+
+/* --- transition entre pages : wipe rouge --- */
+(function(){
+  // consomme le drapeau AVANT le guard reduced-motion (sinon il reste et
+  // rejoue une arrivée fantôme quand l'utilisateur réactive les animations)
+  const cameFromWipe = sessionStorage.getItem('dada-wipe') === '1';
+  if (cameFromWipe) sessionStorage.removeItem('dada-wipe');
+  if (REDUCED) return;
+  const wipe = document.createElement('div');
+  wipe.className = 'page-wipe'; wipe.setAttribute('aria-hidden','true');
+  wipe.innerHTML = '<span>DADA</span>';
+  document.body.appendChild(wipe);
+  // normalise le transform : GSAP convertit le translateY(103%) du CSS en px
+  // et le garderait comme composante séparée → on force y:0 + yPercent
+  gsap.set(wipe, {yPercent:103, y:0});
+  // arrivée : si on vient d'un wipe, il couvre puis s'échappe vers le haut
+  if (cameFromWipe){
+    gsap.fromTo(wipe, {yPercent:0}, {yPercent:-103, duration:.55, ease:'power3.inOut', delay:.05});
+  }
+  // départ : liens internes vers une autre page du site
+  let leaving = false;
+  document.addEventListener('click', e=>{
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target === '_blank' || a.hasAttribute('download')) return;
+    const href = a.getAttribute('href') || '';
+    if (!/^[a-z-]+\.html(#.*)?$/i.test(href)) return;
+    const cur = location.pathname.split('/').pop() || 'index.html';
+    if (href.split('#')[0] === cur) return;          // même page (ancre) → laisser faire
+    e.preventDefault();
+    if (leaving) return;                             // anti double-clic / course entre liens
+    leaving = true;
+    sessionStorage.setItem('dada-wipe','1');
+    gsap.killTweensOf(wipe);
+    gsap.fromTo(wipe, {yPercent:103}, {yPercent:0, duration:.4, ease:'power3.in',
+      onComplete:()=>{
+        location.href = href;
+        // failsafe : navigation annulée (Échap / réseau) → on relève le rideau
+        setTimeout(()=>{ leaving = false; sessionStorage.removeItem('dada-wipe');
+          gsap.to(wipe, {yPercent:103, duration:.4, ease:'power3.out'}); }, 2500);
+      }});
+  });
+  // bfcache : ne jamais rester couvert au retour arrière
+  window.addEventListener('pageshow', e=>{ if (e.persisted){ leaving=false; gsap.set(wipe, {yPercent:103, y:0}); } });
+})();
+
+/* --- barre de scroll « jus » --- */
+(function(){
+  const bar = document.createElement('div');
+  bar.className = 'scroll-juice'; bar.setAttribute('aria-hidden','true');
+  document.body.appendChild(bar);
+  let max = 1;
+  const measure = ()=>{ max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); };
+  measure();
+  window.addEventListener('resize', measure);
+  if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.addEventListener('refresh', measure);
+  const upd = ()=>{ bar.style.transform = 'scaleX(' + Math.min(1, window.pageYOffset/max) + ')'; };
+  window.addEventListener('scroll', upd, {passive:true});
+  upd();
+})();
+
+/* --- footer : DADA géant qui se remplit de jus --- */
+(function(){
+  const liquid = document.getElementById('fdLiquid');
+  if (!liquid) return;
+  const wave = document.getElementById('fdWave');
+  const svg  = liquid.closest('svg');
+  const buildWave = (off, amp)=>{ let p='M -20 12';
+    for (let x=-20; x<=500; x+=16){ const y = 12 + Math.sin((x+off)*0.045)*amp + Math.sin((x-off)*0.08)*(amp*0.4); p += ' L '+x+' '+y.toFixed(1); }
+    return p+' L 500 220 L -20 220 Z'; };
+  wave.setAttribute('d', buildWave(0,8));
+  const H = 120; let level = 0;
+  const apply = ()=> liquid.setAttribute('transform','translate(0,'+((1-level)*H).toFixed(1)+')');
+  apply();
+  if (REDUCED){ level=.88; apply(); return; }
+  let seen=false, inView=false, bubblesMade=false;
+  const pending=[];      // relances de bulles mises en attente hors écran
+  const NS='http://www.w3.org/2000/svg';
+  const gb=document.getElementById('fdBubbles');
+  // bulles créées SEULEMENT au premier passage en vue, et jamais relancées
+  // hors écran (sinon 10 tweens infinis tournent sur les 6 pages en continu)
+  function makeBubbles(){
+    if (bubblesMade) return; bubblesMade=true;
+    for (let i=0;i<10;i++){
+      const c=document.createElementNS(NS,'circle');
+      c.setAttribute('r',gsap.utils.random(2.5,6.5).toFixed(1));
+      c.setAttribute('cx',gsap.utils.random(20,460).toFixed(0));
+      c.setAttribute('cy','190'); gb.appendChild(c);
+      const run=()=>{
+        if (!inView){ pending.push(run); return; }
+        gsap.fromTo(c,{attr:{cy:190},opacity:0},{attr:{cy:gsap.utils.random(28,86)},opacity:gsap.utils.random(.4,.8),duration:gsap.utils.random(2.4,4.6),ease:'sine.out',delay:gsap.utils.random(0,4),onComplete:()=>{gsap.set(c,{opacity:0});run();}});
+      };
+      run();
+    }
+  }
+  const io = new IntersectionObserver(es=>{ es.forEach(en=>{
+    inView = en.isIntersecting;
+    if (en.isIntersecting){
+      makeBubbles();
+      pending.splice(0).forEach(f=>f());
+      if (!seen){ seen=true;
+        gsap.to({v:0},{v:.88, duration:1.6, ease:'power2.out', onUpdate:function(){ level=this.targets()[0].v; }}); }
+    }
+  });}, {threshold:.25});
+  io.observe(svg);
+  gsap.ticker.add((time)=>{ if (!inView) return; wave.setAttribute('d', buildWave(time*50, 8)); apply(); });
+  // easter egg : un clic dessus fait pétiller
+  const fd = document.querySelector('.footer-dada');
+  if (fd) fd.addEventListener('click', e=> dadaFizz(e.clientX, e.clientY, 16));
+})();
+
+/* --- hero accueil : parallax + reflet sur la photo --- */
+(function(){
+  const photo = document.getElementById('heroPhoto');
+  if (!photo || REDUCED) return;
+  photo.classList.add('is-live');
+  const img = photo.querySelector('img');
+  if (typeof ScrollTrigger !== 'undefined' && img){
+    gsap.set(img, {scale:1.12});
+    gsap.fromTo(img, {yPercent:-5}, {yPercent:5, ease:'none',
+      scrollTrigger:{ trigger:'.hero', start:'top bottom', end:'bottom top', scrub:true }});
+  }
+  if (!COARSE){
+    const stage = document.getElementById('heroStage');
+    stage.style.perspective = '900px';
+    const rY = gsap.quickTo(photo,'rotationY',{duration:.7,ease:'power3'});
+    const rX = gsap.quickTo(photo,'rotationX',{duration:.7,ease:'power3'});
+    // perf : rect mis en cache au mouseenter (pas de layout par mousemove),
+    // écritures --gx/--gy limitées à une par frame via rAF
+    let rect=null, queued=false, mx=0, my=0;
+    stage.addEventListener('mouseenter', ()=>{ rect = photo.getBoundingClientRect(); });
+    window.addEventListener('resize', ()=>{ rect = null; });
+    stage.addEventListener('mousemove', e=>{
+      mx = e.clientX; my = e.clientY;
+      if (queued) return; queued = true;
+      requestAnimationFrame(()=>{
+        queued = false;
+        if (!rect) rect = photo.getBoundingClientRect();
+        const px = (mx-rect.left)/rect.width - .5;
+        const py = (my-rect.top)/rect.height - .5;
+        rY(px*6); rX(-py*5);
+        photo.style.setProperty('--gx', (28+px*44)+'%');
+        photo.style.setProperty('--gy', (18+py*30)+'%');
+      });
+    });
+    stage.addEventListener('mouseleave', ()=>{ rY(0); rX(0); rect=null; });
+  }
+})();
+
 function boot(){ startIntro(); ScrollTrigger.refresh(); }
 if (document.readyState === 'complete') boot();
 else window.addEventListener('load', boot);

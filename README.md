@@ -37,7 +37,7 @@ scripts/              → scripts Python (détourage canettes, traitement images
 Photos/  Vidéos/      → où l'utilisateur dépose les nouveaux médias bruts
 ```
 
-> **Cache-busting** : les refs `css/style.css?vN` et `js/main.js?vN` portent un numéro de version (actuel : **v45**) — l'incrémenter à chaque modif CSS/JS.
+> **Cache-busting** : les refs `css/style.css?vN` et `js/main.js?vN` portent un numéro de version (actuel : **v56**) — l'incrémenter à chaque modif CSS/JS.
 
 ## 🎨 Design system (extrait de la marque)
 
@@ -63,6 +63,7 @@ capté sur l'Instagram @dadadrinks (rouge signature, photographie street, ton «
 - **Collaborations** : cartes en vraies photos + **vidéo TikTok verticale** (autoplay muet + bouton son).
 - **Histoire** : story éditoriale (image/texte alterné, vraies photos) + **tuyau de jus central courbé** qui se remplit au scroll (avec bulles) + le mot **« la légende »** = récipient SVG qui **se remplit de jus** (surface ondulée + bulles).
 - Transverse : Lenis (smooth scroll), curseur custom, boutons magnétiques, burger mobile, `prefers-reduced-motion` géré, responsive.
+- **Polish v56** : transitions de page (wipe rouge « DADA »), barre de scroll « jus », fizz de bulles à l'ajout panier, **DADA géant du footer qui se remplit de jus**, parallax + reflet sur la photo du hero, favicon + meta Open Graph (partage), bandeau passé en dégradé famille rouge.
 
 ## 🖼 Visuels & médias
 
