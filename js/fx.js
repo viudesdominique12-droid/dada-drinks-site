@@ -20,6 +20,16 @@
     return e;
   };
   const stops = (grad, list) => list.forEach(([o, c]) => { mk('stop', { offset: o }, grad).style.stopColor = c; });
+  // interpolation dans une liste d'arrêts hexadécimaux (#rrggbb) → 'rgb(r,g,b)'
+  const hexRGB = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mixStops = (list, t) => {
+    let k = 0;
+    while (k < list.length - 2 && t > list[k + 1][0]) k++;
+    const [o0, c0] = list[k], [o1, c1] = list[k + 1];
+    const u = clamp((t - o0) / Math.max(1e-6, o1 - o0), 0, 1);
+    const A = hexRGB(c0), B = hexRGB(c1);
+    return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * u)).join(',') + ')';
+  };
 
   /* ---------- une seule boucle d'animation + vitesse de scroll partagée ---------- */
   const loops = new Set();
@@ -97,6 +107,12 @@
 
     const st = { level: cfg.start || 0, tilt: 0, tiltV: 0, bob: 0, bobV: 0, on: false };
     if (RM) st.level = cfg.level;
+    // couleur du jus à la hauteur y (repère du SVG), au niveau final : le dégradé du corps
+    // couvre sa boîte, de la crête des vagues (S - AMP) au bas du calque (BOT + fs)
+    st.colorAt = (y) => {
+      const y0 = BOT - cfg.level * HH - AMP, y1 = BOT + fs;
+      return mixStops([[0, C.hi], [0.14, C.mid], [1, C.deep]], clamp((y - y0) / (y1 - y0), 0, 1));
+    };
 
     const bubs = [];
     const spawn = (b, first) => {
@@ -197,11 +213,12 @@
 
   // HISTOIRE — « à l'empire. » (le contour rend visible la partie vide)
   const emp = q('#empireSvg');
+  let empJuice = null;   // le tube de verre reprend la couleur de ce jus à la base du E
   if (emp) {
     const m = q('#empMeasure', emp);
     if (m) m.classList.add('emp-outline');
     // niveau ~80 % de la hauteur des capitales : la vague reste visible, l'accent du À reste vide
-    juice({ svg: emp, group: clipGroup(emp, 'empClip'), shape: m, level: 0.8, delay: 0.5, bubbles: 14, amp: 0.045 });
+    empJuice = juice({ svg: emp, group: clipGroup(emp, 'empClip'), shape: m, level: 0.8, delay: 0.5, bubbles: 14, amp: 0.045 });
   }
 
   // HISTOIRE — « la légende. » se remplit au scroll
@@ -300,11 +317,19 @@
     let W = 0, H = 0, tw = 32, len = 0, fillLen = BASE, target = BASE, on = false;
     let mPath, juiceP, flow1, flow2, glow, gBub, LUT = [], bubbles = [];
     // géométrie (px, repère de la boîte) : départ sous le E, puis couloir entre les colonnes
-    const geo = { eX: 85, gX: 85, lane: 170, enter: 300 };
+    const geo = { eX: 85, gX: 85, lane: 170, enter: 300, eW: 0, bY: 6 };
+    const baseY = measure ? parseFloat(measure.getAttribute('y')) || 150 : 150;
+    // couleur du jus du E juste au-dessus de sa base : le tube démarre exactement dans ce rouge
+    const JC = (empJuice && empJuice.colorAt) ? empJuice.colorAt(baseY - 3) : 'rgb(207,0,24)';
+    let seam = null;   // ouvre le contour du E là où le col s'y raccorde
 
     function place() {
       if (!box || !wrap) return;
-      if (getComputedStyle(box).display === 'none') { box.removeAttribute('style'); if (sub) sub.style.maxWidth = ''; return; }
+      if (getComputedStyle(box).display === 'none') {
+        box.removeAttribute('style'); if (sub) sub.style.maxWidth = '';
+        if (seam) seam.style.display = 'none';
+        return;
+      }
       if (empSvg && measure) {
         let ext = null;
         try { ext = measure.getExtentOfChar(measure.getNumberOfChars() - 2); } catch (e) { /* police pas prête */ }
@@ -312,7 +337,7 @@
           const sr = empSvg.getBoundingClientRect();
           const scale = sr.width / 900;
           const eCx = sr.left + (ext.x + ext.width / 2) * scale;
-          const eBot = sr.top + 150 * scale;           // ligne de base du E
+          const eBot = sr.top + baseY * scale;         // ligne de base du E
           const wr = wrap.getBoundingClientRect();
           const topRel = eBot - wr.top - 8 * scale;     // léger chevauchement : le tube part de la lettre
           // couloir = gouttière entre l'image et le texte du 1er chapitre
@@ -331,7 +356,16 @@
           // de la boîte, halo compris — sans elle, un trait vertical net apparaît le long du texte
           const pad = Math.max(lane / 2, 50) + 72;
           const left = Math.min(eX, gapX) - pad, right = Math.max(eX, gapX) + pad;
-          Object.assign(geo, { eX: eX - left, gX: gapX - left, lane, enter: Math.max(120, enter) });
+          Object.assign(geo, { eX: eX - left, gX: gapX - left, lane, enter: Math.max(120, enter), eW: ext.width * scale, bY: 8 * scale });
+          // même largeur que le haut du col (0.8 × E), moins le liseré : le contour reste aux coins
+          if (!seam) { seam = document.createElementNS(NS, 'rect'); empSvg.appendChild(seam); }
+          const sw = ext.width * 0.8 - 2.4 / scale;
+          seam.setAttribute('x', (ext.x + ext.width / 2 - sw / 2).toFixed(2));
+          seam.setAttribute('width', sw.toFixed(2));
+          seam.setAttribute('y', (baseY - 2.4 / scale).toFixed(2));
+          seam.setAttribute('height', (4.8 / scale).toFixed(2));
+          seam.style.fill = JC;
+          seam.style.display = '';
           box.style.transform = 'none';
           box.style.left = left.toFixed(1) + 'px';
           box.style.width = (right - left).toFixed(1) + 'px';
@@ -359,41 +393,66 @@
       // tracé central : tombe sous le E, glisse jusqu'au couloir, puis serpente dedans
       const A = Math.max(0, (geo.lane - tw - 10) / 2 - 6);
       const turns = Math.max(1, (H - geo.enter) / 1900);
+      const px = (y) => {
+        const k = smooth(clamp(y / geo.enter, 0, 1));
+        const cx = geo.eX + (geo.gX - geo.eX) * k;
+        const ramp = smooth(clamp((y - geo.enter * 0.8) / 420, 0, 1));
+        return cx + A * ramp * Math.sin(((y - geo.enter * 0.8) / Math.max(1, H - geo.enter)) * Math.PI * 2 * turns);
+      };
       const n = Math.ceil(H / 10);
       let d = '';
       for (let i = 0; i <= n; i++) {
         const y = (i / n) * H;
-        const k = smooth(clamp(y / geo.enter, 0, 1));
-        const cx = geo.eX + (geo.gX - geo.eX) * k;
-        const ramp = smooth(clamp((y - geo.enter * 0.8) / 420, 0, 1));
-        const x = cx + A * ramp * Math.sin(((y - geo.enter * 0.8) / Math.max(1, H - geo.enter)) * Math.PI * 2 * turns);
-        d += (i ? ' L ' : 'M ') + x.toFixed(1) + ' ' + y.toFixed(1);
+        d += (i ? ' L ' : 'M ') + px(y).toFixed(1) + ' ' + y.toFixed(1);
       }
       const id = 'pp' + (++uid);
       const defs = mk('defs', null, svg);
       stops(mk('linearGradient', { id: id + 'j', x1: 0, y1: 0, x2: 0, y2: H, gradientUnits: 'userSpaceOnUse' }, defs),
-        [[0, '#FF4651'], [0.35, '#E2001A'], [1, '#A5000F']]);
+        [[0, JC], [1, '#9A000E']]);
       stops(mk('radialGradient', { id: id + 'b' }, defs), [
         [0, 'rgba(255,255,255,.08)'], [0.6, 'rgba(255,255,255,.12)'], [0.82, 'rgba(255,255,255,.85)'], [1, 'rgba(255,255,255,0)']]);
       stops(mk('radialGradient', { id: id + 'g' }, defs), [[0, 'rgba(255,90,99,.55)'], [1, 'rgba(255,90,99,0)']]);
       const mask = mk('mask', { id: id + 'm', maskUnits: 'userSpaceOnUse', x: -40, y: -40, width: W + 80, height: H + 80 }, defs);
       const line = (attrs, style, parent) => { const p = mk('path', Object.assign({ d, fill: 'none' }, attrs || {}), parent || svg); Object.assign(p.style, style || {}); return p; };
+      const area = (dd, fill) => { const p = mk('path', { d: dd }, svg); p.style.fill = fill; return p; };
 
-      // verre : liseré fin + corps givré
+      // col sous le « E » : aussi large que la lettre à sa base, il se resserre jusqu'au tube
+      // (le haut, sous la ligne de base, est caché par le E qui passe au premier plan)
+      const bY = geo.bY, nTop = Math.max(tw / 2 + 2, (geo.eW || tw) * 0.4), nLen = Math.max(16, tw * 0.75);
+      const yS = bY + 2, yE = yS + nLen;
+      // le bas du col suit le tracé du tube (qui commence déjà à glisser vers le couloir)
+      const neck = (inf, y0) => {
+        const x = px(0), xb = px(yE), a = nTop + inf, b = tw / 2 + inf, f = (v) => v.toFixed(1);
+        return `M ${f(x - a)} ${f(y0)} L ${f(x + a)} ${f(y0)} L ${f(x + a)} ${f(yS)} `
+          + `C ${f(x + a)} ${f(yS + nLen * 0.55)} ${f(xb + b)} ${f(yS + nLen * 0.4)} ${f(xb + b)} ${f(yE)} `
+          + `L ${f(xb - b)} ${f(yE)} C ${f(xb - b)} ${f(yS + nLen * 0.4)} ${f(x - a)} ${f(yS + nLen * 0.55)} ${f(x - a)} ${f(yS)} Z`;
+      };
+      // reflets et courant n'apparaissent qu'après le col : à la jonction, le liquide est uni
+      stops(mk('linearGradient', { id: id + 'f', x1: 0, y1: yE * 0.7, x2: 0, y2: yE + tw * 1.4, gradientUnits: 'userSpaceOnUse' }, defs),
+        [[0, '#000'], [1, '#fff']]);
+      const fade = mk('mask', { id: id + 'h', maskUnits: 'userSpaceOnUse', x: -40, y: -40, width: W + 80, height: H + 80 }, defs);
+      mk('rect', { x: -40, y: -40, width: W + 80, height: H + 80, fill: `url(#${id}f)` }, fade);
+
+      // verre : col évasé, liseré fin + corps givré
+      area(neck(4, bY), 'rgba(40,10,14,.13)');
+      area(neck(2.5, bY), 'rgba(255,255,255,.78)');
       line(null, { stroke: 'rgba(40,10,14,.13)', strokeWidth: tw + 8 + 'px' });
       line(null, { stroke: 'rgba(255,255,255,.78)', strokeWidth: tw + 5 + 'px' });
       line(null, { stroke: 'rgba(226,0,26,.06)', strokeWidth: tw + 'px' });
+      area(neck(0, 0), `url(#${id}j)`);   // le col est toujours plein
       // masque de remplissage (front arrondi = ménisque)
       mPath = line(null, { stroke: '#fff', strokeWidth: tw + 'px', strokeLinecap: 'round' }, mask);
       const g = mk('g', { mask: `url(#${id}m)` }, svg);
       juiceP = line(null, { stroke: `url(#${id}j)`, strokeWidth: tw + 'px' }, g);
-      flow1 = line(null, { stroke: 'rgba(255,255,255,.2)', strokeWidth: tw * 0.42 + 'px', strokeLinecap: 'round', strokeDasharray: '30 76' }, g);
+      const gFlow = mk('g', { mask: `url(#${id}h)` }, g);
+      flow1 = line(null, { stroke: 'rgba(255,255,255,.2)', strokeWidth: tw * 0.42 + 'px', strokeLinecap: 'round', strokeDasharray: '30 76' }, gFlow);
       flow2 = line({ transform: `translate(${(tw * 0.2).toFixed(1)} 0)` },
-        { stroke: 'rgba(110,0,8,.24)', strokeWidth: tw * 0.16 + 'px', strokeLinecap: 'round', strokeDasharray: '12 64' }, g);
+        { stroke: 'rgba(110,0,8,.24)', strokeWidth: tw * 0.16 + 'px', strokeLinecap: 'round', strokeDasharray: '12 64' }, gFlow);
       gBub = mk('g', null, g);
       // reflets du verre, par-dessus le jus
-      line({ transform: `translate(${(-tw * 0.27).toFixed(1)} 0)` }, { stroke: 'rgba(255,255,255,.88)', strokeWidth: Math.max(2, tw * 0.11) + 'px', strokeLinecap: 'round' });
-      line({ transform: `translate(${(tw * 0.33).toFixed(1)} 0)` }, { stroke: 'rgba(255,255,255,.42)', strokeWidth: Math.max(1.2, tw * 0.05) + 'px', strokeLinecap: 'round' });
+      const gHi = mk('g', { mask: `url(#${id}h)` }, svg);
+      line({ transform: `translate(${(-tw * 0.27).toFixed(1)} 0)` }, { stroke: 'rgba(255,255,255,.88)', strokeWidth: Math.max(2, tw * 0.11) + 'px', strokeLinecap: 'round' }, gHi);
+      line({ transform: `translate(${(tw * 0.33).toFixed(1)} 0)` }, { stroke: 'rgba(255,255,255,.42)', strokeWidth: Math.max(1.2, tw * 0.05) + 'px', strokeLinecap: 'round' }, gHi);
       glow = mk('circle', { r: (tw * 1.15).toFixed(1) }, svg);
       glow.style.fill = `url(#${id}g)`;
 

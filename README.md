@@ -40,7 +40,7 @@ scripts/              → scripts Python (détourage canettes, traitement images
 Photos/  Vidéos/      → où l'utilisateur dépose les nouveaux médias bruts
 ```
 
-> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v63**) — l'incrémenter à chaque modif CSS/JS.
+> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v64**) — l'incrémenter à chaque modif CSS/JS.
 
 ## 🎨 Design system (extrait de la marque)
 
@@ -60,7 +60,7 @@ capté sur l'Instagram @dadadrinks (rouge signature, photographie street, ton «
 
 - **Thème clair partout** (fond crème, texte foncé). Accents en **rouge uni** (pas de dégradé multicolore — choix de la marque).
 - **Intro « split »** (accueil) : le mot DADA se déchire en deux et révèle le hero.
-- **Intro zoom** (accueil) : mosaïque de photos dans laquelle on « entre » au scroll, puis **hero cinéma** plein écran avec le mot **« bouscule » rempli de jus**.
+- **Hero cinéma** (accueil) : photo nette à droite fondue dans une ambiance floutée, titre avec le mot **« bouscule » rempli de jus** ; les **enseignes** défilent en continu plus bas.
 - **Gamme** : scroll horizontal pinné des 13 parfums (cartes pleine couleur).
 - **Expérience** : canette qui pivote au scroll + textes enchaînés.
 - **Collaborations** : cartes en vraies photos + **vidéo TikTok verticale** (autoplay muet + bouton son).
