@@ -26,7 +26,21 @@ const FLAVORS = [
   { id:'pomme',       name:'Pomme',         tag:'Pomme verte, croquante et nette.',          c:'#7CB342' },
   { id:'icetea',      name:'Ice Tea Pêche', tag:'Thé glacé pêche, façon Dada.',              c:'#E0A93B' },
 ];
-const canSrc = id => `assets/cans/clean/${id}.png?v=2`;
+const canSrc = id => `assets/cans/clean/${id}.png?v=3`;
+/* canette « vivante » : l'image + reflet métal + buée, les calques sont
+   découpés à la silhouette exacte via mask-image (--can).
+   --can doit être une URL ABSOLUE : un url() relatif dans une variable CSS se
+   résout depuis la feuille de style (css/) et non depuis la page → 404. */
+const canAbs = (id) => new URL(canSrc(id), location.href).href;
+const canFX = (id, cls, label) =>
+  `<span class="can-fx ${cls}" style="--can:url('${canAbs(id)}')" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>` +
+  `<img class="can-fx__img" src="${canSrc(id)}" alt="" draggable="false" loading="lazy" />` +
+  `<span class="can-fx__sheen"></span><span class="can-fx__frost"></span></span>`;
+// canettes écrites en dur dans le HTML : silhouette posée ici, en absolu
+document.querySelectorAll('.can-fx').forEach((el) => {
+  const im = el.querySelector('img');
+  if (im) el.style.setProperty('--can', `url("${im.src}")`);
+});
 
 /* ============================================================
    SMOOTH SCROLL (Lenis)
@@ -161,7 +175,7 @@ function flavorCard(f, i){
   card.innerHTML = `
     <div class="fc-glow"></div>
     <span class="fc-index">${String(i+1).padStart(2,'0')} / ${FLAVORS.length}</span>
-    <img class="fc-can" src="${canSrc(f.id)}" alt="Dada ${f.name}" loading="lazy" />
+    ${canFX(f.id, 'fc-can', 'Dada ' + f.name)}
     <div class="fc-meta">
       <h3 class="fc-name">${f.name}</h3>
       <p class="fc-tag">${f.tag}</p>
@@ -203,7 +217,7 @@ if (packGrid){
     card.style.setProperty('--c', f.c);
     card.innerHTML = `
       <div class="pk-glow"></div>
-      <img src="${canSrc(f.id)}" alt="Dada ${f.name}" loading="lazy" />
+      ${canFX(f.id, 'pk-can', 'Dada ' + f.name)}
       <div class="pk-meta"><h3>${f.name}</h3><span>Pack 24 × 33cl</span>
         <div class="pk-buy"><span class="pk-price">23,90&nbsp;€</span><button class="pk-add" type="button" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
       </div>`;
@@ -309,29 +323,6 @@ if (!COARSE && !REDUCED && heroStage && canWrap){
   heroStage.addEventListener('mouseleave', ()=>{ rotY(0); rotX(0); glowX(-50); glowY(-50); });
 }
 
-/* bubbles generator */
-function makeBubbles(container, n){
-  if (!container || REDUCED) return;
-  for (let i=0;i<n;i++){
-    const b = document.createElement('span');
-    b.className = 'bubble';
-    const size = gsap.utils.random(4,13);
-    b.style.width = b.style.height = size+'px';
-    b.style.left = gsap.utils.random(20,80)+'%';
-    container.appendChild(b);
-    const animate = ()=>{
-      gsap.fromTo(b,
-        { y:0, opacity:0 },
-        { y:gsap.utils.random(-260,-440), opacity:0.6, duration:gsap.utils.random(3,6),
-          ease:'sine.out', delay:gsap.utils.random(0,4),
-          onStart:()=> gsap.set(b,{opacity:0.6}),
-          onComplete:()=>{ gsap.set(b,{opacity:0}); animate(); } });
-    };
-    animate();
-  }
-}
-makeBubbles(document.getElementById('bubbles'), 14);
-makeBubbles(document.getElementById('expBubbles'), 16);
 
 /* ============================================================
    FLAVOR SWITCHER (hero)
@@ -513,6 +504,8 @@ if (!REDUCED && gammePin && track && !GAMME_SWIPE){
       const idx = Math.min(steps.length-1, Math.floor(p*steps.length*0.999));
       steps.forEach((s,i)=> s.classList.toggle('is-active', i===idx));
       gsap.set(expCan, { rotationY:-16+p*32, y:(p-0.5)*-50, rotationZ:(p-0.5)*6 });
+      // le reflet glisse sur le métal à mesure que la canette pivote
+      expCan.style.setProperty('--sx', (118 - p*136).toFixed(1) + '%');
     }
   });
   // parallax the can column slightly
@@ -651,148 +644,6 @@ if (!REDUCED){
   window.addEventListener('keydown',kick);
 })();
 
-/* ---------- HISTOIRE : tuyau central courbé (jus + bulles) + mot-récipient ---------- */
-(function(){
-  const pipeSvg = document.getElementById('juicePipe');
-  const legLiquid = document.getElementById('legLiquid');
-  if (!pipeSvg && !legLiquid) return;
-  const NS = 'http://www.w3.org/2000/svg';
-
-  /* ---- tuyau central qui serpente ---- */
-  if (pipeSvg){
-    const amp=20, halfW=15, steps=80, pts=[];
-    // démarre centré (cx=50 en haut) pour tomber pile sous le E, puis serpente doucement
-    for(let i=0;i<=steps;i++){ const y=i/steps*1000; const ramp=Math.min(1,y/260); pts.push([50+amp*ramp*Math.sin(y*0.0125), y]); }
-    // largeur du tuyau : pleine en haut, s'amincit doucement vers le bas (le bas se fond en transparence via #pipeFade)
-    const hwAt=(y)=> halfW*(1 - 0.5*Math.max(0,(y-680)/320));
-    let d='M '+(pts[0][0]-halfW).toFixed(1)+' 0';
-    pts.forEach(([cx,y])=> d+=' L '+(cx-hwAt(y)).toFixed(1)+' '+y.toFixed(1));
-    for(let i=pts.length-1;i>=0;i--){ const [cx,y]=pts[i]; d+=' L '+(cx+hwAt(y)).toFixed(1)+' '+y.toFixed(1); }
-    d+=' Z';
-    document.getElementById('pipePath').setAttribute('d', d);
-    document.getElementById('pipeTrackPath').setAttribute('d', d);
-    const revealPath=document.getElementById('pipeRevealPath');
-    const BASE=80;            // le haut du tuyau reste rempli : le jus « part » du mot l'empire
-    let pipeH=BASE, pipePhase=0, pipeAmp=4;
-    // front de jus fluide : somme de 2 ondes basses fréquences, échantillonné finement
-    const drawPipe=()=>{ let p='M -10 0 L 110 0 L 110 '+pipeH.toFixed(1);
-      for(let x=110;x>=-10;x-=2.5){
-        const y=pipeH + Math.sin(x*0.045+pipePhase)*pipeAmp + Math.sin(x*0.083-pipePhase*0.6)*(pipeAmp*0.45);
-        p+=' L '+x.toFixed(1)+' '+y.toFixed(2);
-      }
-      revealPath.setAttribute('d', p+' Z'); };
-    if (REDUCED){ pipeH=1000; pipeAmp=0; drawPipe(); }
-    else {
-      drawPipe();
-      ScrollTrigger.create({ trigger: pipeSvg.closest('.story-wrap'), start:'top 80%', end:'bottom 22%', scrub:true,
-        onUpdate:self=>{ pipeH=BASE+self.progress*(1000-BASE); drawPipe(); } });
-      gsap.to({p:0},{p:1,duration:2.6,ease:'none',repeat:-1,onUpdate:function(){ pipePhase=this.targets()[0].p*6.283; drawPipe(); }});
-      const bub=document.getElementById('pipeBubbles');
-      for(let i=0;i<34;i++){
-        const b=document.createElement('span'); b.className='pbub';
-        const s=gsap.utils.random(4,14); b.style.width=b.style.height=s+'px';
-        b.style.left=gsap.utils.random(36,64)+'%'; bub.appendChild(b);
-        const run=()=>{
-          const peak=gsap.utils.random(0.5,0.9);
-          const tl=gsap.timeline({delay:gsap.utils.random(0,4),onComplete:run});
-          tl.fromTo(b,{bottom:'-5%',opacity:0,x:0,scale:0.5},
-            {bottom:gsap.utils.random(94,110)+'%',x:gsap.utils.random(-16,16),scale:1,
-             duration:gsap.utils.random(3,6),ease:'sine.out'},0)
-            .to(b,{opacity:peak,duration:0.7,ease:'sine.out'},0)
-            .to(b,{opacity:0,duration:1,ease:'sine.in'},'>-1.1');
-        };
-        run();
-      }
-    }
-  }
-
-  /* ---- mot « à l'empire. » (hero) = récipient rempli de jus : vagues + bulles ---- */
-  const empSvg = document.getElementById('empireSvg');
-  if (empSvg){
-    const w1=document.getElementById('empWave1');
-    const w2=document.getElementById('empWave2');
-    // bande de jus ondulée (crête sinusoïdale) balayée horizontalement
-    const band=(off,baseY,amp,thick)=>{
-      let p='M -40 '+(baseY+Math.sin((-40+off)*0.026)*amp).toFixed(1);
-      for(let x=-24;x<=940;x+=16) p+=' L '+x+' '+(baseY+Math.sin((x+off)*0.026)*amp).toFixed(1);
-      for(let x=940;x>=-40;x-=16) p+=' L '+x+' '+(baseY+thick+Math.sin((x+off)*0.026)*amp).toFixed(1);
-      return p+' Z';
-    };
-    if (REDUCED){ w1.setAttribute('d', band(0,54,0,22)); w2.setAttribute('d', band(0,98,0,20)); }
-    else {
-      gsap.to({v:0},{v:1,duration:3.4,ease:'none',repeat:-1,onUpdate:function(){ w1.setAttribute('d', band(this.targets()[0].v*180,54,10,24)); }});
-      gsap.to({v:0},{v:1,duration:5.0,ease:'none',repeat:-1,onUpdate:function(){ w2.setAttribute('d', band(-this.targets()[0].v*150+40,98,12,20)); }});
-      const gb=document.getElementById('empBubbles');
-      for(let i=0;i<20;i++){
-        const c=document.createElementNS(NS,'circle');
-        c.setAttribute('r', gsap.utils.random(3,8).toFixed(1));
-        c.setAttribute('cx', gsap.utils.random(8,884).toFixed(0));
-        c.setAttribute('cy','210');
-        c.setAttribute('fill','rgba(255,255,255,0.6)');
-        gb.appendChild(c);
-        const run=()=>gsap.fromTo(c,{attr:{cy:205},opacity:0},
-          {attr:{cy:gsap.utils.random(20,120)},opacity:gsap.utils.random(0.5,0.85),duration:gsap.utils.random(2.3,4.8),ease:'sine.out',
-           delay:gsap.utils.random(0,4),onComplete:()=>{gsap.set(c,{opacity:0});run();}});
-        run();
-      }
-    }
-  }
-
-  /* ---- aligne le départ du tuyau pile sous le bas du « E » de l'empire ---- */
-  if (pipeSvg && empSvg){
-    const pipeEl = pipeSvg.closest('.juice-pipe');
-    const sw = pipeSvg.closest('.story-wrap');
-    const measure = document.getElementById('empMeasure');
-    const placePipe = ()=>{
-      if (!pipeEl || !sw || !measure) return;
-      if (getComputedStyle(pipeEl).display === 'none'){ pipeEl.removeAttribute('style'); return; }
-      let ext; try { ext = measure.getExtentOfChar(measure.getNumberOfChars()-2); } catch(e){ return; }
-      const sr = empSvg.getBoundingClientRect();
-      const scale = sr.width/900;
-      const eCx  = sr.left + (ext.x + ext.width/2)*scale;     // centre horizontal du E
-      const eBot = sr.top  + 150*scale;                       // ligne de base du E = bas VISIBLE de la lettre (y=150 viewBox)
-      const wr = sw.getBoundingClientRect();
-      const pw = pipeEl.offsetWidth;
-      const topRel = eBot - wr.top - 11;                      // léger chevauchement : le jus part collé sous le E
-      pipeEl.style.transform = 'none';
-      pipeEl.style.left   = (eCx - wr.left - pw/2).toFixed(1)+'px';
-      pipeEl.style.top    = topRel.toFixed(1)+'px';
-      pipeEl.style.height = (sw.offsetHeight*1.04 - topRel).toFixed(1)+'px';
-    };
-    placePipe();
-    document.fonts && document.fonts.ready.then(placePipe);
-    window.addEventListener('load', placePipe);
-    let prt; window.addEventListener('resize', ()=>{ clearTimeout(prt); prt=setTimeout(()=>{ placePipe(); if(window.ScrollTrigger) ScrollTrigger.refresh(); }, 180); });
-  }
-
-  /* ---- mot « la légende » = récipient qui se remplit ---- */
-  if (legLiquid){
-    const wave=document.getElementById('legWave');
-    const buildWave=(off)=>{ let p='M -60 12'; for(let x=-60;x<=820;x+=20){ p+=' L '+x+' '+(12+Math.sin((x+off)*0.045)*9).toFixed(1); } return p+' L 820 760 L -60 760 Z'; };
-    wave.setAttribute('d', buildWave(0));
-    let level=0;
-    const apply=()=> legLiquid.setAttribute('transform','translate(0,'+(188-level*180).toFixed(1)+')');
-    apply();
-    const MAXFILL=0.8;   // jamais 100 % : on garde la surface ondulée visible
-    if (REDUCED){ level=MAXFILL; apply(); return; }
-    ScrollTrigger.create({ trigger:'.cta', start:'top 92%', end:'center 58%', scrub:0.6,
-      onUpdate:self=>{ level=self.progress*MAXFILL; apply(); } });
-    gsap.to({v:0},{v:1,duration:2.6,ease:'none',repeat:-1,onUpdate:function(){ wave.setAttribute('d', buildWave(this.targets()[0].v*140)); }});
-    const gb=document.getElementById('legBubbles');
-    for(let i=0;i<22;i++){
-      const c=document.createElementNS(NS,'circle');
-      c.setAttribute('r', gsap.utils.random(3,10).toFixed(1));
-      c.setAttribute('cx', gsap.utils.random(30,730).toFixed(0));
-      c.setAttribute('cy', '580');
-      c.setAttribute('fill','rgba(255,255,255,0.6)');
-      gb.appendChild(c);
-      const run=()=>gsap.fromTo(c,{attr:{cy:580},opacity:0},
-        {attr:{cy:gsap.utils.random(35,145)},opacity:gsap.utils.random(0.55,0.9),duration:gsap.utils.random(2.2,4.8),ease:'sine.out',
-         delay:gsap.utils.random(0,3.5),onComplete:()=>{gsap.set(c,{opacity:0});run();}});
-      run();
-    }
-  }
-})();
 
 /* ============================================================
    PRO — « Pourquoi Dada » : deck de cartes qui défile au scroll
@@ -828,7 +679,7 @@ if (!REDUCED){
       `<span class="bcard-ghost">${String(i+1).padStart(2,'0')}</span>
        <span class="bcard-chip">Atout ${String(i+1).padStart(2,'0')} / 0${N}</span>
        <div class="bcard-glow"></div>
-       <img class="bcard-can" src="${canSrc(b.id)}" alt="Canette Dada ${b.title}" draggable="false" loading="lazy"/>
+       ${canFX(b.id, 'bcard-can', 'Canette Dada ' + b.title)}
        <div class="bcard-text">
          <span class="bcard-kicker">${b.kick}</span>
          <h3 class="bcard-title">${b.title}</h3>
@@ -976,50 +827,6 @@ if (!REDUCED){
   renderBadge();
 })();
 
-/* ---------- ACCUEIL : « bouscule » se remplit de jus ---------- */
-(function(){
-  const liquid = document.getElementById('bousLiquid');
-  if (!liquid) return;
-  const NS='http://www.w3.org/2000/svg';
-  const wave = document.getElementById('bousWave');
-  const buildWave=(off,tilt,amp)=>{ const k=tilt||0, a=(amp==null?9:amp); let p='M -40 10'; for(let x=-40;x<=520;x+=14){ const t=(x-240)/240; const y=10+Math.sin((x+off)*0.05)*a+Math.sin((x-off)*0.09)*(a*0.35)+k*t; p+=' L '+x+' '+y.toFixed(1); } return p+' L 520 200 L -40 200 Z'; };
-  wave.setAttribute('d', buildWave(0,0,12));
-  const MAX=0.8;
-  let level=0;
-  const apply=()=> liquid.setAttribute('transform','translate(0,'+(96 - level*96).toFixed(1)+')');
-  apply();
-  if (REDUCED){ level=MAX; apply(); return; }
-  // remplissage une fois, après l'apparition du hero
-  gsap.to({v:0},{v:MAX, duration:1.7, ease:'power2.out', delay:2.2, onUpdate:function(){ level=this.targets()[0].v; }});
-  // ondulation + ballottement reactif au scroll (slosh par inertie)
-  const clampS=(v,a,b)=>Math.max(a,Math.min(b,v));
-  let slosh=0, sloshV=0, bob=0, bobV=0, lastY=window.pageYOffset;
-  gsap.ticker.add((time, deltaTime)=>{
-    const y=window.pageYOffset, dt=Math.max(8, deltaTime||16);
-    const vel=(y-lastY)*1000/dt; lastY=y;                 // px/s : scroll vers le haut => vel negatif
-    if (y < window.innerHeight*1.3){
-      const tS=clampS(vel*0.024,-28,28);                  // inclinaison de la surface (bien marquee)
-      const tB=clampS(-vel*0.020,-24,24);                 // inertie verticale : scroll haut => jus vers le bas
-      sloshV+=(tS-slosh)*0.16; sloshV*=0.85; slosh+=sloshV;
-      bobV+=(tB-bob)*0.16;     bobV*=0.85;   bob+=bobV;
-    } else { slosh=0;sloshV=0;bob=0;bobV=0; }
-    const amp = 12 + Math.min(11, Math.abs(slosh)*0.55);   // vagues plus prononcees, encore plus agitees pendant le ballottement
-    wave.setAttribute('d', buildWave(time*55, slosh, amp));
-    liquid.setAttribute('transform','translate(0,'+(96 - level*96 + bob).toFixed(2)+')');
-  });
-  // bulles
-  const gb=document.getElementById('bousBubbles');
-  for(let i=0;i<12;i++){
-    const c=document.createElementNS(NS,'circle');
-    c.setAttribute('r', gsap.utils.random(3,8).toFixed(1));
-    c.setAttribute('cx', gsap.utils.random(20,460).toFixed(0));
-    c.setAttribute('cy','170');
-    c.setAttribute('fill','rgba(255,255,255,0.6)');
-    gb.appendChild(c);
-    const run=()=>gsap.fromTo(c,{attr:{cy:170},opacity:0},{attr:{cy:gsap.utils.random(24,80)},opacity:gsap.utils.random(0.5,0.85),duration:gsap.utils.random(2.2,4.5),ease:'sine.out',delay:gsap.utils.random(1.5,5),onComplete:()=>{gsap.set(c,{opacity:0});run();}});
-    run();
-  }
-})();
 
 /* ---------- ACCUEIL : zoom-parallax (intro au scroll) ---------- */
 (function(){
@@ -1065,7 +872,9 @@ if (!REDUCED){
     if (help) help.innerHTML = p.help;
   }
   pfBtns.forEach(b=> b.addEventListener('click', ()=> applyProfile(b.dataset.profil)));
-  applyProfile('particulier');
+  // contact.html#pro (lien « Prendre rendez-vous » du bandeau SIAL) → profil présélectionné
+  const fromHash = (location.hash || '').slice(1);
+  applyProfile(PROFILES[fromHash] ? fromHash : 'particulier');
 
   /* ---- jauge canette ---- */
   const juice = document.getElementById('ctJuice');
@@ -1131,33 +940,6 @@ if (!REDUCED){
   });
 })();
 
-/* ---------- CONTACT : le mot « TOUT » se remplit de jus ---------- */
-(function(){
-  const liquid=document.getElementById('ctcLiquid'); if(!liquid) return;
-  const NS='http://www.w3.org/2000/svg';
-  const wave=document.getElementById('ctcWave');
-  const buildWave=(off,tilt,amp)=>{ const k=tilt||0,a=(amp==null?8:amp); let p='M -40 12'; for(let x=-40;x<=340;x+=12){ const t=(x-150)/150; const y=12+Math.sin((x+off)*0.05)*a+Math.sin((x-off)*0.09)*(a*0.4)+k*t; p+=' L '+x+' '+y.toFixed(1);} return p+' L 340 200 L -40 200 Z'; };
-  wave.setAttribute('d', buildWave(0,0,9));
-  const MAX=0.82; let level=0;
-  const apply=()=> liquid.setAttribute('transform','translate(0,'+(96-level*96).toFixed(1)+')');
-  apply();
-  if(REDUCED){ level=MAX; apply(); return; }
-  gsap.to({v:0},{v:MAX,duration:1.6,ease:'power2.out',delay:.5,onUpdate:function(){ level=this.targets()[0].v; }});
-  let lastY=window.pageYOffset, slosh=0,sloshV=0,bob=0,bobV=0;
-  const clampS=(v,a,b)=>Math.max(a,Math.min(b,v));
-  gsap.ticker.add((time,dt)=>{
-    const y=window.pageYOffset, d=Math.max(8,dt||16); const vel=(y-lastY)*1000/d; lastY=y;
-    if(y<window.innerHeight*1.3){ const tS=clampS(vel*0.02,-22,22), tB=clampS(-vel*0.018,-20,20); sloshV+=(tS-slosh)*0.16; sloshV*=0.85; slosh+=sloshV; bobV+=(tB-bob)*0.16; bobV*=0.85; bob+=bobV; } else { slosh=0;sloshV=0;bob=0;bobV=0; }
-    const amp=9+Math.min(9,Math.abs(slosh)*0.5);
-    wave.setAttribute('d', buildWave(time*55, slosh, amp));
-    liquid.setAttribute('transform','translate(0,'+(96-level*96+bob).toFixed(2)+')');
-  });
-  const gb=document.getElementById('ctcBubbles');
-  for(let i=0;i<8;i++){ const c=document.createElementNS(NS,'circle');
-    c.setAttribute('r',gsap.utils.random(2.5,6).toFixed(1)); c.setAttribute('cx',gsap.utils.random(10,290).toFixed(0)); c.setAttribute('cy','180'); c.setAttribute('fill','rgba(255,255,255,0.6)'); gb.appendChild(c);
-    const run=()=>gsap.fromTo(c,{attr:{cy:180},opacity:0},{attr:{cy:gsap.utils.random(22,70)},opacity:gsap.utils.random(0.4,0.8),duration:gsap.utils.random(2,4),ease:'sine.out',delay:gsap.utils.random(1,5),onComplete:()=>{gsap.set(c,{opacity:0});run();}}); run();
-  }
-})();
 
 /* ============================================================
    POLISH v56 — wipe de page, jus de scroll, fizz, footer DADA,
@@ -1254,55 +1036,6 @@ document.addEventListener('click', e=>{
   upd();
 })();
 
-/* --- footer : DADA géant qui se remplit de jus --- */
-(function(){
-  const liquid = document.getElementById('fdLiquid');
-  if (!liquid) return;
-  const wave = document.getElementById('fdWave');
-  const svg  = liquid.closest('svg');
-  const buildWave = (off, amp)=>{ let p='M -20 12';
-    for (let x=-20; x<=500; x+=16){ const y = 12 + Math.sin((x+off)*0.045)*amp + Math.sin((x-off)*0.08)*(amp*0.4); p += ' L '+x+' '+y.toFixed(1); }
-    return p+' L 500 220 L -20 220 Z'; };
-  wave.setAttribute('d', buildWave(0,8));
-  const H = 120; let level = 0;
-  const apply = ()=> liquid.setAttribute('transform','translate(0,'+((1-level)*H).toFixed(1)+')');
-  apply();
-  if (REDUCED){ level=.88; apply(); return; }
-  let seen=false, inView=false, bubblesMade=false;
-  const pending=[];      // relances de bulles mises en attente hors écran
-  const NS='http://www.w3.org/2000/svg';
-  const gb=document.getElementById('fdBubbles');
-  // bulles créées SEULEMENT au premier passage en vue, et jamais relancées
-  // hors écran (sinon 10 tweens infinis tournent sur les 6 pages en continu)
-  function makeBubbles(){
-    if (bubblesMade) return; bubblesMade=true;
-    for (let i=0;i<10;i++){
-      const c=document.createElementNS(NS,'circle');
-      c.setAttribute('r',gsap.utils.random(2.5,6.5).toFixed(1));
-      c.setAttribute('cx',gsap.utils.random(20,460).toFixed(0));
-      c.setAttribute('cy','190'); gb.appendChild(c);
-      const run=()=>{
-        if (!inView){ pending.push(run); return; }
-        gsap.fromTo(c,{attr:{cy:190},opacity:0},{attr:{cy:gsap.utils.random(28,86)},opacity:gsap.utils.random(.4,.8),duration:gsap.utils.random(2.4,4.6),ease:'sine.out',delay:gsap.utils.random(0,4),onComplete:()=>{gsap.set(c,{opacity:0});run();}});
-      };
-      run();
-    }
-  }
-  const io = new IntersectionObserver(es=>{ es.forEach(en=>{
-    inView = en.isIntersecting;
-    if (en.isIntersecting){
-      makeBubbles();
-      pending.splice(0).forEach(f=>f());
-      if (!seen){ seen=true;
-        gsap.to({v:0},{v:.88, duration:1.6, ease:'power2.out', onUpdate:function(){ level=this.targets()[0].v; }}); }
-    }
-  });}, {threshold:.25});
-  io.observe(svg);
-  gsap.ticker.add((time)=>{ if (!inView) return; wave.setAttribute('d', buildWave(time*50, 8)); apply(); });
-  // easter egg : un clic dessus fait pétiller
-  const fd = document.querySelector('.footer-dada');
-  if (fd) fd.addEventListener('click', e=> dadaFizz(e.clientX, e.clientY, 16));
-})();
 
 /* --- hero cinéma : lent drift parallax de la photo au scroll --- */
 (function(){
@@ -1336,16 +1069,6 @@ document.addEventListener('click', e=>{
     gsap.to(b,{y:gsap.utils.random(-34,-14), x:gsap.utils.random(-10,10), opacity:0, scale:.35,
       duration:gsap.utils.random(.5,.8), ease:'power1.out', onComplete:()=>{ b.remove(); alive--; }});
   }, {passive:true});
-})();
-/* bulles du CTA : créées seulement quand la section devient visible
-   (même logique que le footer — pas de tweens infinis hors écran) */
-(function(){
-  const c = document.getElementById('ctaBubbles');
-  if (!c || REDUCED) return;
-  const io = new IntersectionObserver(es=>{ es.forEach(en=>{
-    if (en.isIntersecting){ makeBubbles(c, 12); io.disconnect(); }
-  });}, {threshold:.1});
-  io.observe(c);
 })();
 
 function boot(){ startIntro(); ScrollTrigger.refresh(); }

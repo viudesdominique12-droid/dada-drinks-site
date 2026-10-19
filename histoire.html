@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://viudesdominique12-droid.github.io/dada-drinks-site/assets/photos/zoom-4.jpg" />
 <meta property="og:url" content="https://viudesdominique12-droid.github.io/dada-drinks-site/histoire.html" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="stylesheet" href="css/style.css?v=58" />
+<link rel="stylesheet" href="css/style.css?v=61" />
 </head>
 <body>
 
@@ -69,28 +69,9 @@
   <!-- STORY -->
   <section class="story-wrap container">
 
-    <!-- tuyau de jus central, courbé, qui se remplit au scroll -->
+    <!-- tube de verre central : le jus coule le long de la courbe au scroll (dessiné par js/fx.js) -->
     <div class="juice-pipe" aria-hidden="true">
-      <svg id="juicePipe" viewBox="0 0 100 1000" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="juiceGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#FF3B45"/><stop offset="0.5" stop-color="#E2001A"/><stop offset="1" stop-color="#B00010"/>
-          </linearGradient>
-          <clipPath id="pipeShape"><path id="pipePath" d=""/></clipPath>
-          <clipPath id="pipeReveal"><path id="pipeRevealPath" d="M -10 0 L 110 0 L 110 0 L -10 0 Z"/></clipPath>
-          <linearGradient id="pipeFadeGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#fff"/><stop offset="0.84" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
-          </linearGradient>
-          <mask id="pipeFade" maskUnits="userSpaceOnUse" x="-10" y="0" width="120" height="1000"><rect x="-10" y="0" width="120" height="1000" fill="url(#pipeFadeGrad)"/></mask>
-        </defs>
-        <g mask="url(#pipeFade)">
-          <path id="pipeTrackPath" class="pipe-track" d=""/>
-          <g clip-path="url(#pipeShape)"><g clip-path="url(#pipeReveal)">
-            <rect x="-10" y="0" width="120" height="1000" fill="url(#juiceGrad)"/>
-          </g></g>
-        </g>
-      </svg>
-      <div class="pipe-bubbles" id="pipeBubbles"></div>
+      <svg id="juicePipe"></svg>
     </div>
 
     <article class="story" style="--c:#E2001A">
@@ -107,7 +88,7 @@
 
     <article class="story" style="--c:#1FA98C">
       <div class="story-media">
-        <img src="assets/photos/boisson-malaisie.jpg" alt="Boisson pétillante fruitée découverte en Malaisie" loading="lazy" />
+        <img src="assets/insta/litchi-glass.jpg" alt="Verre pétillant au litchi, glaçons et fruit frais" loading="lazy" />
         <span class="story-year">2006</span>
       </div>
       <div class="story-text">
@@ -119,7 +100,7 @@
 
     <article class="story" style="--c:#E3023B">
       <div class="story-media">
-        <img src="assets/photos/art-boisson.jpg" alt="Canette Dada tenue en main" loading="lazy" />
+        <img src="assets/insta/studio3.jpg" alt="Une main tient une canette Dada Cola" loading="lazy" style="object-position:center 40%" />
         <span class="story-year">2007</span>
       </div>
       <div class="story-text">
@@ -242,6 +223,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="js/main.js?v=58"></script>
+<script src="js/main.js?v=61"></script>
+<script src="js/fx.js?v=61"></script>
 </body>
 </html>
