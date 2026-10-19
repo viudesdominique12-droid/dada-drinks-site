@@ -327,7 +327,9 @@
             enter = st1.getBoundingClientRect().top - wr.top - topRel;
           }
           const eX = eCx - wr.left;
-          const pad = Math.max(lane / 2, 50);
+          // marge au-delà du couloir : le masque de fondu (.juice-pipe) rogne tout ce qui dépasse
+          // de la boîte, halo compris — sans elle, un trait vertical net apparaît le long du texte
+          const pad = Math.max(lane / 2, 50) + 72;
           const left = Math.min(eX, gapX) - pad, right = Math.max(eX, gapX) + pad;
           Object.assign(geo, { eX: eX - left, gX: gapX - left, lane, enter: Math.max(120, enter) });
           box.style.transform = 'none';
