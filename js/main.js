@@ -263,7 +263,7 @@ marquee('.cm-track', 30, -1);
 marquee('.photo-track', 55, 1);
 
 /* hero background giant DADA marquee */
-if (!REDUCED){
+if (!REDUCED && document.querySelector('.hmb-track')){
   gsap.to('.hmb-track', { xPercent:-50, repeat:-1, duration:40, ease:'none' });
 }
 
@@ -613,7 +613,7 @@ const HISTOIRE = [
 /* ============================================================
    BAND tilt parallax on scroll
    ============================================================ */
-if (!REDUCED){
+if (!REDUCED && document.querySelector('.band')){
   gsap.fromTo('.band-track', { x:0 }, { x:-80, ease:'none',
     scrollTrigger:{ trigger:'.band', start:'top bottom', end:'bottom top', scrub:true }});
 }
