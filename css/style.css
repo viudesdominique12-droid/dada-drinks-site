@@ -146,6 +146,7 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
 /* bouton Ajouter sur les cartes boutique */
 .fc-buy{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;position:relative;z-index:3}
 .fc-price{font-family:var(--font-display);font-weight:900;font-size:19px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.45)}
+.fc-price small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.88;margin-top:2px}
 .fc-add{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;padding:11px 18px;border-radius:30px;background:#fff;color:#160A0C;font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:13px;transition:transform .3s var(--ease),box-shadow .3s}
 .fc-add:hover{transform:translateY(-2px);box-shadow:0 12px 24px -10px rgba(0,0,0,.4)}
 .fc-add span{font-size:17px;line-height:1}
@@ -1180,3 +1181,49 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
   .vibe-player--back .vibe-tag{right:auto;left:10px;bottom:10px}
   .vibe-player--back .vt-more{display:none}
 }
+
+/* --- PARTICULIERS : infos produit (format, composition, conservation) --- */
+.product-info{padding:clamp(40px,7vh,80px) 0 clamp(20px,4vh,40px)}
+.pi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pi-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px 26px;box-shadow:0 18px 40px -30px rgba(20,8,10,.35)}
+.pi-card h3{font-family:var(--font-display);font-weight:900;text-transform:uppercase;font-size:20px;letter-spacing:-.01em;margin-bottom:14px;color:var(--rouge)}
+.pi-card p,.pi-card li{font-size:14.5px;line-height:1.6;color:var(--ink-soft)}
+.pi-card p+p{margin-top:10px}
+.pi-card b{color:var(--ink)}
+.pi-card ul{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:9px}
+.pi-card li{padding-left:18px;position:relative}
+.pi-card li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--rouge)}
+.pi-note{font-size:13px;opacity:.85}
+@media(max-width:900px){.pi-grid{grid-template-columns:1fr}}
+
+/* --- PROS : palettes (tarifs officiels TTC) + vitrines --- */
+.palette-wrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:clamp(20px,3vw,40px);align-items:center;margin-bottom:46px}
+.palette-visual{margin:0;background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 18px 40px -30px rgba(20,8,10,.35)}
+.palette-visual img{display:block;width:100%;height:auto}
+.palette-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tier{position:relative;background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px 20px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  box-shadow:0 18px 40px -30px rgba(20,8,10,.35);transition:transform .4s var(--ease),box-shadow .4s}
+.tier:hover{transform:translateY(-6px);box-shadow:0 26px 50px -28px rgba(226,0,26,.45)}
+.tier-n{font-family:var(--font-display);font-weight:900;font-size:clamp(44px,4.4vw,60px);line-height:.9;color:var(--rouge)}
+.tier-l{font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--ink)}
+.tier-p{font-family:var(--font-display);font-weight:900;font-size:24px;margin-top:14px;color:var(--ink)}
+.tier-u{font-size:13px;color:var(--ink-soft);margin-bottom:16px}
+.tier--best{border-color:var(--rouge);box-shadow:0 22px 46px -26px rgba(226,0,26,.5)}
+.tier-badge{position:absolute;top:14px;right:14px;background:var(--rouge);color:#fff;font-family:var(--font-display);font-weight:800;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.05em;padding:5px 10px;border-radius:20px}
+.tier .fr-add{margin-top:auto;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;padding:11px 18px;border-radius:30px;background:var(--rouge);color:#fff;
+  font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:12px;transition:transform .3s var(--ease),box-shadow .3s}
+.tier .fr-add:hover{transform:translateY(-2px);box-shadow:0 12px 24px -10px rgba(226,0,26,.6)}
+.pk-intro{font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--ink-soft);margin:0 0 18px}
+.fr-photo{margin:0 0 30px;border-radius:26px;overflow:hidden;position:relative;aspect-ratio:21/9;background:var(--noir)}
+.fr-photo img{width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block}
+.fr-photo figcaption{position:absolute;left:18px;bottom:16px;font-family:var(--font-display);font-weight:800;font-size:12px;text-transform:uppercase;
+  letter-spacing:.05em;color:#fff;background:rgba(10,1,3,.55);backdrop-filter:blur(6px);padding:7px 12px;border-radius:12px}
+.fridge-card .fr-gift{display:inline-block;margin-top:10px;font-family:var(--font-display);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--rouge);background:color-mix(in srgb,var(--rouge) 10%,#fff);padding:6px 12px;border-radius:20px}
+.pro-wa{display:inline-flex;align-items:center;gap:8px;margin-top:18px;color:#fff;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.02em;
+  text-decoration:none;border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:2px}
+.pro-wa span{color:#25D366;font-size:12px}
+.pro-wa:hover{border-bottom-color:#fff}
+@media(max-width:1100px){.palette-tiers{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.palette-wrap{grid-template-columns:1fr}.palette-visual{max-width:300px;margin:0 auto}.fr-photo{aspect-ratio:4/5}}

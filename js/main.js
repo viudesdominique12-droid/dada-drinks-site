@@ -16,7 +16,7 @@ const FLAVORS = [
   { id:'cola-zero',   name:'Cola Zéro',     tag:'Tout le goût du cola, zéro sucre.',         c:'#7A7A80' },
   { id:'cola-cherry', name:'Cola Cherry',   tag:'Cola + cerise, le combo qui claque.',       c:'#A8275E' },
   { id:'cerise',      name:'Cerise',        tag:'Rouge intense, fraîcheur qui réveille.',    c:'#C8102E' },
-  { id:'fraise',      name:'Fraise',        tag:'La fraise plein fruit, plein peps.',        c:'#E63950' },
+  { id:'fraise',      name:'Fraise',        tag:'La fraise qui pétille, plein peps.',        c:'#E63950' },
   { id:'litchi',      name:'Litchi',        tag:'Exotique, floral, carrément addictif.',     c:'#F26D8F' },
   { id:'lemon',       name:'Lemon',         tag:'Le citron qui te met une claque.',          c:'#4CAF50' },
   { id:'mangue',      name:'Mangue',        tag:'Un coup de soleil tropical en canette.',    c:'#1FA98C' },
@@ -187,12 +187,14 @@ if (shopGrid){
       card.addEventListener('mouseenter', ()=>{ shopSection.style.backgroundColor = lightTint(f.c, 0.72); });
       card.addEventListener('mouseleave', ()=>{ shopSection.style.backgroundColor = ''; });
     }
-    // bloc prix + ajouter au panier
+    // bloc prix + ajouter au panier — tarif de la boutique officielle : pack de 24 × 33 cl à 32 €
+    const chip = card.querySelector('.fc-chip');
+    if (chip) chip.textContent = 'Pack de 24 × 33 cl';
     const meta = card.querySelector('.fc-meta');
     if (meta){
       const buy = document.createElement('div'); buy.className = 'fc-buy';
-      buy.innerHTML = `<span class="fc-price">11,90&nbsp;€</span><button class="fc-add" type="button" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button>`;
-      buy.querySelector('.fc-add').addEventListener('click', ev=>{ ev.preventDefault(); ev.stopPropagation(); window.dadaAddToCart && window.dadaAddToCart({key:f.id, name:f.name, price:11.90, can:f.id, color:f.c}); });
+      buy.innerHTML = `<span class="fc-price">32,00&nbsp;€<small>le pack</small></span><button class="fc-add" type="button" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button>`;
+      buy.querySelector('.fc-add').addEventListener('click', ev=>{ ev.preventDefault(); ev.stopPropagation(); window.dadaAddToCart && window.dadaAddToCart({key:f.id+'-p24', name:f.name+' · Pack de 24', price:32, can:f.id, color:f.c}); });
       meta.appendChild(buy);
     }
     shopGrid.appendChild(card);
@@ -209,11 +211,7 @@ if (packGrid){
     card.innerHTML = `
       <div class="pk-glow"></div>
       ${canFX(f.id, 'pk-can', 'Dada ' + f.name)}
-      <div class="pk-meta"><h3>${f.name}</h3><span>Pack 24 × 33cl</span>
-        <div class="pk-buy"><span class="pk-price">23,90&nbsp;€</span><button class="pk-add" type="button" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
-      </div>`;
-    const padd = card.querySelector('.pk-add');
-    if (padd) padd.addEventListener('click', ev=>{ ev.preventDefault(); ev.stopPropagation(); window.dadaAddToCart && window.dadaAddToCart({key:f.id+'-pack', name:f.name+' · Pack 24', price:23.90, can:f.id, color:f.c}); });
+      <div class="pk-meta"><h3>${f.name}</h3><span>Pack 24 × 33 cl</span></div>`;
     if (packsSection && !COARSE){
       // au survol : tout le fond de la section se teinte au parfum de la canette
       card.addEventListener('mouseenter', ()=>{ packsSection.style.backgroundColor = lightTint(f.c, 0.72); });
@@ -257,7 +255,7 @@ marquee('.photo-track', 55, 1);
 (function(){
   const track = document.querySelector('.retailers-track');
   if (!track || REDUCED) return;
-  const loop = gsap.to(track, { xPercent:-50, repeat:-1, duration:34, ease:'none' });
+  const loop = gsap.to(track, { xPercent:-50, repeat:-1, duration:60, ease:'none' });
   const box = track.parentElement;
   box.addEventListener('mouseenter', ()=> gsap.to(loop, { timeScale:0.18, duration:0.6, overwrite:true }));
   box.addEventListener('mouseleave', ()=> gsap.to(loop, { timeScale:1, duration:0.6, overwrite:true }));
@@ -656,18 +654,18 @@ if (!REDUCED && document.querySelector('.band')){
   if (!section || !pin || !stage) return;                // main.js partagé → feature-test
 
   const BENEFITS = [
-    {id:'cola',        c:'#E2001A', kick:'01 · Pourquoi Dada', title:'Marges attractives',
-      desc:"Une tarification pensée pour les revendeurs, du déstockage rapide grâce à une forte rotation."},
-    {id:'mangue',      c:'#1FA98C', kick:'02 · Le produit',    title:'Produit différenciant',
-      desc:"La canette transparente et les parfums originaux attirent l'œil et déclenchent l'achat d'impulsion."},
-    {id:'melon',       c:'#F0A93B', kick:'03 · Logistique',    title:'Livraison & stock',
-      desc:"Packs 24×33cl, commandes simples, réassort rapide partout en France."},
-    {id:'cola-cherry', c:'#A8275E', kick:'04 · La demande',    title:'Forte demande',
-      desc:"Une communauté de dizaines de milliers de fans qui réclament Dada près de chez eux."},
-    {id:'mojito',      c:'#8BC34A', kick:'05 · En rayon',      title:'Visibilité & PLV',
-      desc:"Présentoirs et supports de communication pour mettre la marque en avant dans votre point de vente."},
-    {id:'litchi',      c:'#F26D8F', kick:'06 · Le service',    title:'Accompagnement',
-      desc:"Une équipe dédiée pour vous conseiller, du premier contact au réassort."}
+    {id:'cola',        c:'#E2001A', kick:'01 · La demande',    title:'Une marque qui parle aux jeunes',
+      desc:"Jul, Ninho, Sofiane, Alonzo : Dada s'invite dans les clips. 44 000 abonnés sur Instagram et une cote énorme chez les 10–25 ans."},
+    {id:'mangue',      c:'#1FA98C', kick:'02 · Le produit',    title:'13 références qui claquent',
+      desc:"Colas, fruités, mojito, ice tea : des canettes colorées qui attirent l'œil en rayon et en frigo."},
+    {id:'melon',       c:'#F0A93B', kick:'03 · Les volumes',   title:'Palettes sur mesure',
+      desc:"De 25 à 100 packs de 24 × 33 cl par palette, saveurs au choix : vous composez selon votre clientèle."},
+    {id:'cola-cherry', c:'#A8275E', kick:'04 · La visibilité', title:'Une marque qui se voit',
+      desc:"Affichage JCDecaux, taxis parisiens, pub télé, partenariats PFL et basket : la marque fait parler d'elle."},
+    {id:'mojito',      c:'#8BC34A', kick:'05 · En boutique',   title:'Vitrines réfrigérées',
+      desc:"Trois vitrines aux couleurs Dada (Slim, Moyen, Big), livrées avec des colis offerts."},
+    {id:'litchi',      c:'#F26D8F', kick:'06 · Le contact',    title:'Un interlocuteur direct',
+      desc:"Une question, une commande, un réassort ? L'équipe répond directement sur WhatsApp."}
   ];
   const N = BENEFITS.length;
 
@@ -793,7 +791,7 @@ if (!REDUCED && document.querySelector('.band')){
       <button class="ci-remove" type="button" data-act="rm" data-id="${id}" aria-label="Retirer">✕</button></div>`).join('');
     foot.innerHTML = `<div class="cart-total"><span>Total</span><strong>${eur(total())}</strong></div>
       <button class="btn btn-primary cart-checkout" type="button">Commander</button>
-      <p class="cart-note">Démo — aucun paiement réel.</p>`;
+      <p class="cart-note">Site de démonstration — la commande se finalise sur la boutique officielle.</p>`;
   }
   const open = ()=>{ render(); drawer.classList.add('is-open'); overlay.classList.add('is-open'); drawer.setAttribute('aria-hidden','false'); };
   const close = ()=>{ drawer.classList.remove('is-open'); overlay.classList.remove('is-open'); drawer.setAttribute('aria-hidden','true'); };
@@ -813,8 +811,7 @@ if (!REDUCED && document.querySelector('.band')){
   });
   foot.addEventListener('click', e=>{
     if(!e.target.closest('.cart-checkout')) return;
-    cart={}; save(); renderBadge();
-    body.innerHTML = `<div class="cart-done"><span class="cart-done-ic">✓</span><h4>Commande confirmée !</h4><p>Merci d'avoir rejoint la team Dada. (Démo — rien n'est facturé.)</p></div>`;
+    body.innerHTML = `<div class="cart-done"><span class="cart-done-ic">✓</span><h4>Plus qu'une étape</h4><p>Ce site est une démo&nbsp;: ta commande n'est pas envoyée. Commande pour de vrai sur la <a href="https://www.dadadrinks.com/shop-brine" target="_blank" rel="noopener">boutique officielle Dada</a> — ou, pour les pros, sur <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp</a>.</p></div>`;
     foot.innerHTML = '';
   });
 
@@ -838,11 +835,11 @@ if (!REDUCED && document.querySelector('.band')){
 
   const PROFILES = {
     particulier:{ accent:'#E2001A', extra:'Sujet',
-      help:`<h4>Par email</h4><p>Une question conso, un avis, une idée&nbsp;? Écris à <a href="mailto:hello@dadadrinks.com">hello@dadadrinks.com</a> — réponse sous ~24&nbsp;h.</p>` },
+      help:`<h4>Une question&nbsp;?</h4><p>Un avis, une idée, un parfum introuvable&nbsp;? Écris-nous ici ou directement sur <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp</a>. Pour commander&nbsp;: la <a href="https://www.dadadrinks.com/shop-brine" target="_blank" rel="noopener">boutique officielle</a> (packs de 24).</p>` },
     pro:{ accent:'#1FA98C', extra:'Société',
-      help:`<h4>Espace Pro</h4><p>Revente, distribution, CHR&nbsp;: passe par l'<a href="professionnels.html">espace pro</a> ou <a href="mailto:pro@dadadrinks.com">pro@dadadrinks.com</a>. Packs 24×33, frigos &amp; PLV.</p>` },
+      help:`<h4>Espace Pro</h4><p>Revente, distribution, CHR&nbsp;: palettes de 25 à 100 packs, vitrines réfrigérées — tout est sur l'<a href="professionnels.html">espace pro</a>. Le plus rapide&nbsp;: <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp +33 7 82 20 61 31</a>.</p>` },
     presse:{ accent:'#A8275E', extra:'Média / publication',
-      help:`<h4>Presse &amp; média</h4><p>Interviews, visuels, dossier de presse&nbsp;: <a href="mailto:presse@dadadrinks.com">presse@dadadrinks.com</a>. On traite en priorité.</p>` },
+      help:`<h4>Presse &amp; média</h4><p>Interview, visuels, reportage&nbsp;: précise ton média et ton délai, on revient vers toi. Tu peux aussi écrire en DM sur <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>.</p>` },
     collab:{ accent:'#E3023B', extra:'Projet / lien (IG, portfolio)',
       help:`<h4>Collabs &amp; artistes</h4><p>Une idée qui bouscule&nbsp;? Glisse ton lien. Musique, street, art — on adore. Voir nos <a href="collaborations.html">collabs</a>.</p>` },
   };
