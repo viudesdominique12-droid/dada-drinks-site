@@ -137,15 +137,6 @@ const nav = document.getElementById('nav');
 if (nav) ScrollTrigger.create({ start:'top -60', onUpdate:self=>{
   nav.classList.toggle('scrolled', self.scroll() > 60);
 }});
-/* Accueil : nav cachée pendant l'intro + le zoom, révélée en entrant dans le hero */
-const heroSection = document.getElementById('top');
-const hasZoomIntro = document.getElementById('zoomParallax') && document.getElementById('intro');
-if (nav && heroSection && hasZoomIntro && !REDUCED){
-  nav.classList.add('nav-hidden');
-  ScrollTrigger.create({ trigger: heroSection, start:'top 78%',
-    onEnter:()=> nav.classList.remove('nav-hidden'),
-    onLeaveBack:()=> nav.classList.add('nav-hidden') });
-}
 
 /* ---------- MOBILE MENU (burger) ---------- */
 (function(){
@@ -289,9 +280,8 @@ function startIntro(){
     .addLabel('split', '-=0.1')
     .to('.intro-top',    { yPercent:-100, duration:1.0, ease:'power4.inOut' }, 'split')
     .to('.intro-bottom', { yPercent: 100, duration:1.0, ease:'power4.inOut' }, 'split')
-    .set(intro, { display:'none' }, 'split+=1.0');
-  // le hero ne se révèle plus ici : il « atterrit » au scroll quand on y entre
-  // (voir HERO PHOTO REVEAL plus bas)
+    .set(intro, { display:'none' }, 'split+=1.0')
+    .add(()=>{ if (heroReveal) heroReveal.play(); }, 'split+=0.05');
 }
 
 /* ============================================================
@@ -362,13 +352,12 @@ switchEls.forEach(btn=>{
 applyFlavorTheme(document.querySelector('.fs-item.is-active')?.dataset.accent || '#E2001A');
 
 /* ============================================================
-   HERO PHOTO REVEAL — la photo « atterrit » et le texte se révèle
-   quand on entre dans le hero (après le zoom)
+   HERO PHOTO REVEAL — la photo se pose et le texte monte, joué à
+   l'ouverture de l'intro « DADA » (voir startIntro)
    ============================================================ */
 const heroPhoto = document.getElementById('heroPhoto');
+let heroReveal = null;
 if (heroPhoto && !REDUCED){
-  // hero cinéma : la photo (déjà « traversée » dans le zoom) se pose en
-  // douceur, le texte monte par-dessus
   const heroTL = gsap.timeline({ paused:true, defaults:{ ease:'power3.out' } });
   heroTL
     .fromTo(heroPhoto, { scale:1.16 }, { scale:1, duration:1.7, ease:'power3.out' })
@@ -377,7 +366,8 @@ if (heroPhoto && !REDUCED){
     .fromTo('.hero-sub',            { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:0.8 }, 0.5)
     .fromTo('.hero-actions .btn',   { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:0.7, stagger:0.1 }, 0.6)
     .fromTo('.hero .scroll-cue',    { autoAlpha:0 },        { autoAlpha:1, duration:0.6 }, 0.85);
-  ScrollTrigger.create({ trigger:'.hero', start:'top 72%', once:true, onEnter:()=> heroTL.play() });
+  heroReveal = heroTL;
+  if (!document.getElementById('intro')) heroTL.play();
 }
 
 /* ============================================================
@@ -827,18 +817,6 @@ if (!REDUCED && document.querySelector('.band')){
   renderBadge();
 })();
 
-
-/* ---------- ACCUEIL : zoom-parallax (intro au scroll) ---------- */
-(function(){
-  const zoom = document.getElementById('zoomParallax');
-  if (!zoom || REDUCED || typeof ScrollTrigger === 'undefined') return;
-  const els = gsap.utils.toArray('#zoomParallax .zoom-el');
-  const scales = [4, 5, 6, 5, 6, 8, 9];   // la 1re (centre = mec à la canette) remplit l'écran
-  els.forEach((el,i)=>{
-    gsap.to(el, { scale: scales[i] || 5, ease:'none',
-      scrollTrigger:{ trigger: zoom, start:'top top', end:'bottom bottom', scrub:true, invalidateOnRefresh:true }});
-  });
-})();
 
 /* ============================================================
    CONTACT — profil interactif, jauge canette, confirmation, FAQ

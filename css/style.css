@@ -157,8 +157,6 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
   padding:22px clamp(20px,5vw,64px);
   transition:background .4s,padding .4s,backdrop-filter .4s,transform .6s var(--ease),opacity .6s var(--ease);
 }
-/* cachée à l'arrivée (intro + zoom), révélée en entrant dans le hero (JS) */
-.nav.nav-hidden{transform:translateY(-118%);opacity:0;pointer-events:none}
 .nav.scrolled{background:rgba(247,241,233,.82);backdrop-filter:blur(14px);padding:14px clamp(20px,5vw,64px);border-bottom:1px solid var(--line)}
 .nav-logo{display:inline-flex;align-items:center;background:var(--rouge);padding:9px 13px;border-radius:14px;box-shadow:0 8px 24px -10px rgba(226,0,26,.7);transition:transform .4s var(--ease)}
 .nav-logo img{width:74px;display:block}
@@ -214,21 +212,6 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
 .hero-title .outline{color:transparent;-webkit-text-stroke:2.5px var(--noir)}
 .bouscule-svg{height:1em;width:auto;display:inline-block;vertical-align:-.16em;overflow:visible}
 .bous-empty{fill:transparent;stroke:var(--noir);stroke-width:2.5;vector-effect:non-scaling-stroke;paint-order:stroke}
-/* ===== ZOOM PARALLAX (intro accueil) — fond noir, mystérieux ===== */
-.zoom{position:relative;height:300vh;background:var(--noir)}
-.zoom-pin{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--noir)}
-.zoom-pin::after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;
-  background:radial-gradient(125% 95% at 50% 48%,transparent 52%,rgba(0,0,0,.72))}
-.zoom-el{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;will-change:transform}
-.zoom-img{position:relative;width:25vw;height:27vh;overflow:hidden;border-radius:12px;box-shadow:0 44px 90px -26px rgba(0,0,0,.85)}
-.zoom-img img{width:100%;height:100%;object-fit:cover;display:block}
-.zoom-el:nth-of-type(2) .zoom-img{top:-30vh;left:1vw;width:32vw;height:27vh}
-.zoom-el:nth-of-type(3) .zoom-img{top:-6vh;left:-28vw;width:21vw;height:42vh}
-.zoom-el:nth-of-type(4) .zoom-img{top:-2vh;left:30vw;width:22vw;height:25vh}
-.zoom-el:nth-of-type(5) .zoom-img{top:29vh;left:2vw;width:21vw;height:25vh}
-.zoom-el:nth-of-type(6) .zoom-img{top:29vh;left:-25vw;width:29vw;height:25vh}
-.zoom-el:nth-of-type(7) .zoom-img{top:24vh;left:29vw;width:16vw;height:16vh}
-@media(prefers-reduced-motion:reduce){.zoom{display:none}}
 .hero-sub{max-width:480px;margin:30px 0 38px;font-size:clamp(16px,1.2vw,19px);color:#5a4647;line-height:1.6}
 .hero-sub strong{color:var(--noir)}
 .hero .btn-ghost{border-color:rgba(10,1,3,.3);color:var(--noir)}
@@ -997,7 +980,7 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
    V57 — DA affirmée : hero cinématique, culture photo,
    CTA rouge, mur de logos accueil, détails éditoriaux
    ============================================================ */
-/* --- HERO CINÉMA : la photo du zoom devient le décor plein cadre --- */
+/* --- HERO CINÉMA --- */
 .hero--cinema{background:var(--noir);color:#fff;justify-content:flex-end;padding:120px 0 clamp(56px,9vh,100px)}
 .hero-bgphoto{position:absolute;inset:0;z-index:0;overflow:hidden}
 .hero-bgphoto img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
@@ -1022,11 +1005,19 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
   .hero--cinema .hero-sub{margin-left:0}
   .hero--cinema .hero-actions{justify-content:flex-start}
 }
-/* reduced-motion : le zoom est masqué → hero sombre en haut de page,
-   la nav (non "scrolled" à y=0) doit passer en blanc pour rester lisible */
-@media(prefers-reduced-motion:reduce){
-  body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-links a{color:#fff}
-  body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{background:#fff}
+/* hero sombre en haut de page : la nav (non "scrolled" à y=0) passe en blanc */
+body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-links a{color:#fff}
+body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{background:#fff}
+/* photo portrait nette à droite, fondue dans une ambiance floutée (image pré-calculée,
+   pas de filtre blur plein écran) ; en dessous de 981px la photo repasse plein cadre */
+.hero-ambient{position:absolute;inset:0;z-index:0;overflow:hidden;background:var(--noir)}
+.hero-ambient img{width:100%;height:100%;object-fit:cover;transform:scale(1.15)}
+@media(min-width:981px){
+  .hero--cinema .hero-bgphoto{inset:0 0 0 auto;width:min(52vw,860px);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);mask-image:linear-gradient(90deg,transparent 0,#000 30%)}
+  .hero--cinema .hero-shade{background:
+    linear-gradient(90deg,rgba(10,1,3,.62) 0,rgba(10,1,3,.34) 45%,rgba(10,1,3,0) 68%),
+    linear-gradient(180deg,rgba(10,1,3,.38),transparent 26%,transparent 72%,rgba(10,1,3,.55))}
 }
 
 /* --- CULTURE : cartes en vraies photos --- */
