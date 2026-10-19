@@ -253,6 +253,16 @@ marquee('.band-track', 26, 1);
 marquee('.cm-track', 30, -1);
 marquee('.photo-track', 55, 1);
 
+/* enseignes (accueil) : défilement continu, ralenti au survol */
+(function(){
+  const track = document.querySelector('.retailers-track');
+  if (!track || REDUCED) return;
+  const loop = gsap.to(track, { xPercent:-50, repeat:-1, duration:34, ease:'none' });
+  const box = track.parentElement;
+  box.addEventListener('mouseenter', ()=> gsap.to(loop, { timeScale:0.18, duration:0.6, overwrite:true }));
+  box.addEventListener('mouseleave', ()=> gsap.to(loop, { timeScale:1, duration:0.6, overwrite:true }));
+})();
+
 /* hero background giant DADA marquee */
 if (!REDUCED && document.querySelector('.hmb-track')){
   gsap.to('.hmb-track', { xPercent:-50, repeat:-1, duration:40, ease:'none' });
@@ -412,8 +422,7 @@ if (!REDUCED){
   fadeUp('.gamme-intro .muted');
   fadeUp('.cta-inner > p, .newsletter, .cta-note');
   // clearProps : sinon le transform inline résiduel écrase le :hover des cartes logos
-  fadeUp('.retailers span', { y:30, stagger:0.06, clearProps:'transform',
-    scrollTrigger:{ trigger:'.retailers', start:'top 88%' }});
+  fadeUp('.retailers-marquee', { y:30, scrollTrigger:{ trigger:'.retailers-marquee', start:'top 90%' }});
 }
 
 /* ============================================================
