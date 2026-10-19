@@ -40,7 +40,7 @@ scripts/              → scripts Python (détourage canettes, traitement images
 Photos/  Vidéos/      → où l'utilisateur dépose les nouveaux médias bruts
 ```
 
-> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v64**) — l'incrémenter à chaque modif CSS/JS.
+> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v65**) — l'incrémenter à chaque modif CSS/JS.
 
 ## 🎨 Design system (extrait de la marque)
 
