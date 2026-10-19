@@ -27,11 +27,14 @@ particuliers.html     → Boutique : toute la gamme (13 parfums) + où acheter
 professionnels.html   → Espace pro (B2B) : salon SIAL, avantages, packs 24×33, frigos/PLV, formulaire
 collaborations.html   → Dada × la culture (cartes photo) + vidéo TikTok + reel Instagram
 contact.html          → Contact : profils (contact.html#pro, #presse…), formulaire, FAQ, partenaires
+mentions-legales.html → Mentions légales (éditeur à compléter), données, cookies, crédits
 css/style.css         → design system + styles (THÈME CLAIR) partagés
 js/main.js            → logique partagée (GSAP + ScrollTrigger + Lenis), robuste par page
 js/fx.js              → moteurs visuels : mots remplis de jus, bulles, tube de verre, badge SIAL
 assets/brand/         → logo officiel Dada
-assets/cans/clean/    → 13 canettes détourées (fond transparent, silhouettes réparées)
+assets/cans/clean/    → 13 canettes redécoupées depuis les visuels officiels (scripts/recut_cans.py)
+assets/histoire/      → archives (premier logo, premières canettes 2007, canette slim 2018…)
+assets/pros/ assets/collabs/ → vitrines, palette, Quai 54, Paris Basket, JCDecaux
 assets/fx/            → textures d'effets (gouttelettes de buée)
 assets/insta/         → photos et reel issus de l'Instagram @dadadrinks
 assets/photos/        → photos street/lifestyle + frigos
@@ -40,7 +43,7 @@ scripts/              → scripts Python (détourage canettes, traitement images
 Photos/  Vidéos/      → où l'utilisateur dépose les nouveaux médias bruts
 ```
 
-> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v65**) — l'incrémenter à chaque modif CSS/JS.
+> **Cache-busting** : les refs `css/style.css?v=N`, `js/main.js?v=N` et `js/fx.js?v=N` portent un numéro de version (actuel : **v66**) — l'incrémenter à chaque modif CSS/JS.
 
 ## 🎨 Design system (extrait de la marque)
 
@@ -72,7 +75,7 @@ capté sur l'Instagram @dadadrinks (rouge signature, photographie street, ton «
 
 ## 🖼 Visuels & médias
 
-Canettes, logo, photos = **assets officiels Dada** (détourés / optimisés), dont des posts récents de l'Instagram @dadadrinks — propriété de la marque, à valider pour une mise en ligne réelle.
+Canettes, logo, photos = **assets officiels Dada** (détourés / optimisés), issus de dadadrinks.com, de l'Instagram @dadadrinks et de la page Facebook DADA Drinks — propriété de la marque, à valider pour une mise en ligne réelle. Prix, composition, histoire et contacts sont alignés sur le site officiel (relevé du 20/10/2026).
 Pour ajouter un média : **le déposer dans `Photos/` ou `Vidéos/`**, puis il est traité (PIL / ffmpeg) et intégré.
 
 ## ⚠️ Statut

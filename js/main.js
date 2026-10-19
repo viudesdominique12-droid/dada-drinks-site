@@ -26,7 +26,7 @@ const FLAVORS = [
   { id:'pomme',       name:'Pomme',         tag:'Pomme verte, croquante et nette.',          c:'#7CB342' },
   { id:'icetea',      name:'Ice Tea Pêche', tag:'Thé glacé pêche, façon Dada.',              c:'#E0A93B' },
 ];
-const canSrc = id => `assets/cans/clean/${id}.png?v=3`;
+const canSrc = id => `assets/cans/clean/${id}.png?v=4`;
 /* canette « vivante » : l'image + reflet métal + buée, les calques sont
    découpés à la silhouette exacte via mask-image (--can).
    --can doit être une URL ABSOLUE : un url() relatif dans une variable CSS se
