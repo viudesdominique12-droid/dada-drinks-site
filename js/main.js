@@ -193,8 +193,7 @@ if (shopGrid){
     const meta = card.querySelector('.fc-meta');
     if (meta){
       const buy = document.createElement('div'); buy.className = 'fc-buy';
-      buy.innerHTML = `<span class="fc-price">32,00&nbsp;€<small>le pack</small></span><button class="fc-add" type="button" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button>`;
-      buy.querySelector('.fc-add').addEventListener('click', ev=>{ ev.preventDefault(); ev.stopPropagation(); window.dadaAddToCart && window.dadaAddToCart({key:f.id+'-p24', name:f.name+' · Pack de 24', price:32, can:f.id, color:f.c}); });
+      buy.innerHTML = `<span class="fc-price">32,00&nbsp;€<small>le pack</small></span><div class="fc-ctl" data-id="${f.id}"></div>`;
       meta.appendChild(buy);
     }
     shopGrid.appendChild(card);
@@ -207,11 +206,18 @@ if (packGrid){
   FLAVORS.forEach((f,i)=>{
     const card = document.createElement('article');
     card.className = 'pack-card';
+    card.dataset.id = f.id;
     card.style.setProperty('--c', f.c);
     card.innerHTML = `
       <div class="pk-glow"></div>
+      <span class="pk-n" aria-hidden="true">0</span>
       ${canFX(f.id, 'pk-can', 'Dada ' + f.name)}
-      <div class="pk-meta"><h3>${f.name}</h3><span>Pack 24 × 33 cl</span></div>`;
+      <div class="pk-meta"><h3>${f.name}</h3><span>Pack 24 × 33 cl</span></div>
+      <div class="pk-ctl" role="group" aria-label="Packs de ${f.name} dans ta palette">
+        <button type="button" data-pal="dec" aria-label="Un pack de ${f.name} en moins">−</button>
+        <input type="number" inputmode="numeric" min="0" max="100" step="1" value="0" data-pal="set" aria-label="Nombre de packs de ${f.name}" />
+        <button type="button" data-pal="inc" aria-label="Un pack de ${f.name} en plus">+</button>
+      </div>`;
     if (packsSection && !COARSE){
       // au survol : tout le fond de la section se teinte au parfum de la canette
       card.addEventListener('mouseenter', ()=>{ packsSection.style.backgroundColor = lightTint(f.c, 0.72); });
@@ -220,16 +226,6 @@ if (packGrid){
     packGrid.appendChild(card);
   });
 }
-
-/* Frigos & PLV : boutons « Ajouter » (cartes statiques) */
-document.querySelectorAll('.fr-add').forEach(btn=>{
-  btn.addEventListener('click', e=>{ e.preventDefault();
-    window.dadaAddToCart && window.dadaAddToCart({
-      key: btn.dataset.key, name: btn.dataset.name,
-      price: parseFloat(btn.dataset.price), img: btn.dataset.img, color:'#E2001A'
-    });
-  });
-});
 
 /* active nav link by current page */
 (function(){
@@ -740,87 +736,685 @@ if (!REDUCED && document.querySelector('.band')){
 })();
 
 /* ============================================================
-   PANIER (mini-cart démo) — injecté sur toutes les pages
+   PANIER & DEVIS PRO — injectés sur toutes les pages
+   Site concept : rien n'est payé ni transmis d'ici. Le panier se
+   finalise sur WhatsApp (message tout rédigé) ou sur la boutique
+   officielle, fiche par fiche (Squarespace ne peut pas recevoir un
+   panier venu d'un autre site). Les pros composent un devis
+   (palettes mixtes + vitrines) qui part sur WhatsApp.
    ============================================================ */
 (function(){
   const navEl = document.getElementById('nav');
   if (!navEl) return;
-  const eur = n => n.toFixed(2).replace('.',',')+' €';
 
-  let cart = {};
-  try { cart = JSON.parse(localStorage.getItem('dada-cart')||'{}') || {}; } catch(e){ cart = {}; }
-  for (const k in cart){ const v=cart[k]; if(!v||typeof v!=='object'||typeof v.q!=='number'){ delete cart[k]; } }
-  const save = ()=>{ try{ localStorage.setItem('dada-cart', JSON.stringify(cart)); }catch(e){} };
-  const nItems = ()=> Object.values(cart).reduce((a,b)=>a+(b.q||0),0);
-  const total  = ()=> Object.values(cart).reduce((a,b)=>a+(b.q||0)*(b.price||0),0);
+  const WA = '33782206131';
+  const SHOP = 'https://www.dadadrinks.com';
+  // fiches de la boutique officielle (plusieurs slugs viennent du modèle Squarespace « brine »)
+  const SHOP_SLUG = {
+    cola:'dada-cola-pack-de-24-canettes', 'cola-zero':'dada-cola-zero-pack-de-24', 'cola-cherry':'dada-cola-cherry',
+    cerise:'do-chua-2b6jz', fraise:'beets-3k7cg', litchi:'sauerkraut-2zh2p', lemon:'dada-lemon-pack-de-24-canettes',
+    mangue:'lemons-alkye', melon:'spring-mix-9y7xp', mojito:'caperberries-37mae', peche:'dill-pickles-kby8f',
+    pomme:'beni-shoga-bl23x', icetea:'dada-ice-tea-pack-de-24' };
+  const PACK = 32, CANS = 24, MAXQ = 99;
+  const TIERS = { 25:450, 50:900, 70:1155, 100:1600 };            // palettes mixtes, TTC
+  const VITRINES = {
+    slim:  { name:'Vitrine Slim',  price:718,  gift:10, img:'assets/photos/frigo-slim.png' },
+    moyen: { name:'Vitrine Moyen', price:918,  gift:20, img:'assets/photos/frigo-moyen.png' },
+    big:   { name:'Vitrine Big',   price:1620, gift:24, img:'assets/photos/frigo-double.png' } };
+  const FL = Object.fromEntries(FLAVORS.map(f => [f.id, f]));
+  const IDS = FLAVORS.map(f => f.id);
+  const IS_PRO = !!document.getElementById('palBar');
 
-  // --- bouton panier dans la nav (regroupé avec Contact) ---
+  // milliers : espace insécable classique (l'espace fine U+202F n'existe pas dans Rubik)
+  const fmt = (n, d) => n.toLocaleString('fr-FR', { minimumFractionDigits:d, maximumFractionDigits:d }).replace(/\u202f/g, '\u00a0') + '\u00a0€';
+  const eur2 = n => fmt(n, 2), eur0 = n => fmt(n, 0);
+  const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+  const waURL = m => `https://wa.me/${WA}?text=${encodeURIComponent(m)}`;
+
+  /* --- état, gardé dans le navigateur --- */
+  const load = k => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v && typeof v === 'object' ? v : null; } catch(e){ return null; } };
+  const keep = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+  function readCart(){
+    let c = load('dada-cart-v2'), migrated = false;
+    if (!c){                                     // reprise de l'ancien panier : les packs seulement
+      c = {}; const old = load('dada-cart');
+      if (old){
+        for (const k in old){ const m = /^(.+)-p24$/.exec(k); if (m && FL[m[1]] && old[k]) c[m[1]] = old[k].q; }
+        migrated = true;
+      }
+    }
+    const out = {};
+    for (const k in c){ const q = Math.min(MAXQ, Math.floor(+c[k] || 0)); if (FL[k] && q > 0) out[k] = q; }
+    if (migrated){ keep('dada-cart-v2', out); try { localStorage.removeItem('dada-cart'); } catch(e){} }
+    return out;
+  }
+  function readDevis(){
+    const d = load('dada-devis-v1') || {}, out = { palettes:[], vitrines:{} };
+    (Array.isArray(d.palettes) ? d.palettes : []).forEach(p => {
+      if (!p || !TIERS[p.size] || !p.mix) return;
+      const mix = {}; let n = 0;
+      for (const k in p.mix){ const q = Math.floor(+p.mix[k] || 0); if (FL[k] && q > 0){ mix[k] = q; n += q; } }
+      if (n === +p.size) out.palettes.push({ size:+p.size, mix });
+    });
+    for (const k in (d.vitrines || {})){ const q = Math.min(MAXQ, Math.floor(+d.vitrines[k] || 0)); if (VITRINES[k] && q > 0) out.vitrines[k] = q; }
+    return out;
+  }
+  let cart = readCart(), devis = readDevis();
+  const saveCart = () => keep('dada-cart-v2', cart);
+  const saveDevis = () => keep('dada-devis-v1', devis);
+  const nPacks = () => IDS.reduce((a, id) => a + (cart[id] || 0), 0);
+  const nDevis = () => devis.palettes.length + Object.values(devis.vitrines).reduce((a, b) => a + b, 0);
+  const devisTotal = () => devis.palettes.reduce((a, p) => a + TIERS[p.size], 0)
+    + Object.keys(devis.vitrines).reduce((a, k) => a + VITRINES[k].price * devis.vitrines[k], 0);
+  const mixText = (mix, sep) => IDS.filter(id => mix[id]).map(id => `${mix[id]} ${FL[id].name}`).join(sep || ' · ');
+
+  /* --- pictogrammes --- */
+  const ic = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const I = {
+    sac:'<path d="M6.4 7.5h11.2a1.5 1.5 0 0 1 1.5 1.38l.85 10.5a2 2 0 0 1-2 2.12H6.05a2 2 0 0 1-2-2.12l.85-10.5A1.5 1.5 0 0 1 6.4 7.5z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/>',
+    caddie:'<path d="M2.5 4h2.2a1 1 0 0 1 1 .8L8 15.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.45-1.1L21 8H6.3"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17.5" cy="20" r="1.3"/>',
+    pack:'<rect x="5" y="4.5" width="3.2" height="6.5" rx="1.2" fill="currentColor" stroke="none"/><rect x="10.4" y="4.5" width="3.2" height="6.5" rx="1.2" fill="currentColor" stroke="none"/><rect x="15.8" y="4.5" width="3.2" height="6.5" rx="1.2" fill="currentColor" stroke="none"/><rect x="3" y="10.5" width="18" height="10" rx="2"/><path d="M10 15h4"/>',
+    x:'<path d="M6 6l12 12M18 6 6 18"/>', back:'<path d="M15 5l-7 7 7 7"/>', ext:'<path d="M8 16 16 8M9.5 8H16v6.5"/>',
+    check:'<path d="m5 12.5 4.3 4.3L19 7.5"/>',
+    shop:'<path d="M4 9.5 5.2 5h13.6L20 9.5"/><path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9.5 20v-5.5h5V20"/>',
+    copy:'<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/>' };
+  const WA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967c-.273-.099-.471-.148-.67.15c-.197.297-.767.966-.94 1.164c-.173.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.018-.458.13-.606c.134-.133.298-.347.446-.52s.198-.298.298-.497c.099-.198.05-.371-.025-.52s-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51a13 13 0 0 0-.57-.01c-.198 0-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479c0 1.462 1.065 2.875 1.213 3.074s2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625c.712.227 1.36.195 1.871.118c.571-.085 1.758-.719 2.006-1.413s.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214l-3.741.982l.998-3.648l-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884c2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"/></svg>';
+  const CART_ICON = 'sac';                        // pictogramme du panier : 'sac', 'caddie' ou 'pack'
+
+  /* --- bouton panier dans la nav (regroupé avec Contact) --- */
   const toggle = document.createElement('button');
   toggle.className = 'cart-toggle'; toggle.type = 'button';
-  toggle.setAttribute('aria-label','Panier'); toggle.setAttribute('data-cursor','Panier');
-  toggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span class="cart-count">0</span>`;
+  toggle.setAttribute('aria-haspopup', 'dialog'); toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', 'cartDrawer'); toggle.setAttribute('data-cursor', 'Panier');
+  toggle.innerHTML = ic(I[CART_ICON]) + '<span class="cart-count" aria-hidden="true">0</span>';
   const contactBtn = navEl.querySelector('.btn-nav');
   if (contactBtn){
     const actions = document.createElement('div'); actions.className = 'nav-actions';
     navEl.insertBefore(actions, contactBtn);
     actions.appendChild(toggle); actions.appendChild(contactBtn);
-  } else { navEl.appendChild(toggle); }
+  } else navEl.appendChild(toggle);
   const countEl = toggle.querySelector('.cart-count');
 
-  // --- overlay + tiroir ---
-  const overlay = document.createElement('div'); overlay.className='cart-overlay';
-  const drawer = document.createElement('aside'); drawer.className='cart-drawer'; drawer.setAttribute('aria-hidden','true');
-  drawer.innerHTML = `<div class="cart-head"><h3>Ton panier</h3><button class="cart-close" type="button" aria-label="Fermer">✕</button></div>
-    <div class="cart-body"></div><div class="cart-foot"></div>`;
-  document.body.appendChild(overlay); document.body.appendChild(drawer);
-  const body = drawer.querySelector('.cart-body');
-  const foot = drawer.querySelector('.cart-foot');
+  /* --- tiroir (panneau qui monte du bas sur mobile) --- */
+  const overlay = document.createElement('div'); overlay.className = 'cart-overlay';
+  const drawer = document.createElement('aside');
+  drawer.className = 'cart-drawer'; drawer.id = 'cartDrawer';
+  drawer.setAttribute('role', 'dialog'); drawer.setAttribute('aria-modal', 'true');
+  drawer.setAttribute('aria-labelledby', 'cdTitle'); drawer.setAttribute('aria-hidden', 'true');
+  drawer.setAttribute('data-lenis-prevent', '');
+  drawer.innerHTML = `<span class="cd-grab" aria-hidden="true"></span>
+    <div class="cd-head">
+      <button class="cd-back" type="button" data-act="back" aria-label="Retour" hidden>${ic(I.back)}</button>
+      <h3 id="cdTitle" tabindex="-1">Ton panier</h3>
+      <button class="cd-close" type="button" data-act="close" aria-label="Fermer">${ic(I.x)}</button>
+    </div>
+    <div class="cd-tabs" role="tablist" aria-label="Panier ou devis pro" hidden>
+      <button type="button" role="tab" data-tab="cart">Panier <b></b></button>
+      <button type="button" role="tab" data-tab="devis">Devis pro <b></b></button>
+    </div>
+    <ol class="cd-steps" aria-label="Étapes de la commande"><li>Panier</li><li>Finaliser</li><li>C'est parti</li></ol>
+    <div class="cd-body"></div>
+    <div class="cd-foot"></div>`;
+  document.body.append(overlay, drawer);
+  const $ = s => drawer.querySelector(s);
+  const titleEl = $('#cdTitle'), backBtn = $('.cd-back'), tabsEl = $('.cd-tabs'), stepsEl = $('.cd-steps');
+  const body = $('.cd-body'), foot = $('.cd-foot');
 
-  function renderBadge(){ const n=nItems(); countEl.textContent=n; toggle.classList.toggle('has-items', n>0); }
-  function render(){
+  const live = document.createElement('p');
+  live.className = 'sr-only'; live.setAttribute('aria-live', 'polite');
+  document.body.appendChild(live);
+  const say = t => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 40); };
+
+  /* --- notification (ajout sans ouvrir le tiroir) --- */
+  const toast = document.createElement('div');
+  toast.className = 'dada-toast'; toast.setAttribute('role', 'status');
+  document.body.appendChild(toast);
+  let toastT;
+  function hideToast(){ clearTimeout(toastT); toast.classList.remove('is-on'); }
+  function toastShow(o){
+    toast.innerHTML = `${o.img ? `<img src="${o.img}" alt="" draggable="false" />` : ''}<span class="dt-t">${o.text}</span>${o.action ? `<button type="button">${o.action}</button>` : ''}`;
+    const b = toast.querySelector('button');
+    if (b) b.addEventListener('click', () => { hideToast(); if (o.onAction) o.onAction(); });
+    toast.classList.add('is-on');
+    clearTimeout(toastT); toastT = setTimeout(hideToast, 4200);
+  }
+  toast.addEventListener('mouseenter', () => clearTimeout(toastT));
+  toast.addEventListener('focusin', () => clearTimeout(toastT));
+  toast.addEventListener('mouseleave', () => { clearTimeout(toastT); toastT = setTimeout(hideToast, 1800); });
+
+  /* --- pastille + petite secousse du pictogramme --- */
+  function renderBadge(){
+    const p = nPacks(), d = nDevis(), n = p + d;
+    countEl.textContent = n > 99 ? '99+' : n;
+    toggle.classList.toggle('has-items', n > 0);
+    toggle.setAttribute('aria-label', 'Panier, ' + (p ? plural(p, 'pack') : 'vide') + (d ? `, devis pro : ${plural(d, 'élément')}` : ''));
+  }
+  function bump(){
     renderBadge();
-    const ids = Object.keys(cart).filter(id=>cart[id].q>0);
+    toggle.classList.remove('is-bump'); void toggle.offsetWidth; toggle.classList.add('is-bump');
+  }
+  // une canette (ou une vitrine) vole jusqu'au panier
+  function fly(img, done){
+    const r = img && img.getBoundingClientRect ? img.getBoundingClientRect() : null;
+    if (REDUCED || !r || !r.width || r.bottom < 0 || r.top > innerHeight){ done(); return; }
+    const t = toggle.getBoundingClientRect();
+    const h = Math.min(r.height, 150), w = h * (r.width / r.height);
+    const el = document.createElement('img');
+    el.src = img.currentSrc || img.src; el.alt = ''; el.className = 'cart-fly';
+    el.style.cssText = `left:${r.left + r.width / 2 - w / 2}px;top:${r.top + r.height / 2 - h / 2}px;width:${w}px;height:${h}px`;
+    document.body.appendChild(el);
+    const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2);
+    gsap.timeline({ onComplete:() => { el.remove(); done(); } })
+      .to(el, { x:dx, duration:.75, ease:'power2.inOut' }, 0)
+      .to(el, { y:dy, duration:.75, ease:'back.in(1.5)' }, 0)
+      .to(el, { scale:22 / h, rotation:24, duration:.75, ease:'power3.in' }, 0)
+      .to(el, { opacity:0, duration:.14 }, .63);
+  }
+
+  /* --- vues du tiroir --- */
+  let tab = 'cart', view = 'list', lastMsg = '', undo = null, undoT;
+  const shopDone = new Set();
+  const info = { prenom:'', ville:'', nom:'', societe:'', villePro:'' };
+  const undoBar = () => undo ? `<div class="cd-undo" role="status"><span>${esc(undo.label)}</span><button type="button" data-act="undo">Annuler</button></div>` : '';
+  const qtyHTML = (act, key, val, n, label) => `<span class="cd-qty" role="group" aria-label="${label}">
+      <button type="button" data-act="${act}dec" ${key} aria-label="${n} en moins">−</button><output>${val}</output>
+      <button type="button" data-act="${act}inc" ${key} aria-label="${n} en plus">+</button></span>`;
+
+  const TITLES = { list:'Ton panier', finish:'Finaliser', shop:'Sur la boutique', sent:"C'est parti",
+    devis:'Ton devis pro', 'devis-sent':"C'est parti" };
+  const VIEWS = {};
+
+  VIEWS.list = () => {
+    const ids = IDS.filter(id => cart[id]);
     if (!ids.length){
-      body.innerHTML = `<p class="cart-empty">Ton panier est vide.<br/>Ajoute tes parfums préférés 🥤</p>`;
+      body.innerHTML = undoBar() + `<div class="cd-empty">
+        <img class="cd-empty-can" src="${canSrc('cola')}" alt="" draggable="false" />
+        <h4>Ton panier a soif.</h4>
+        <p>13 parfums, en pack de 24 canettes à 32&nbsp;€. Compose ton mix.</p>
+        <a class="btn btn-primary" href="particuliers.html#boutique" data-go="boutique">Découvrir les parfums</a>
+        ${IS_PRO ? '' : '<a class="cd-link" href="professionnels.html#palette" data-go="palette">Tu es pro&nbsp;? Compose ta palette</a>'}
+      </div>`;
       foot.innerHTML = ''; return;
     }
-    body.innerHTML = ids.map(id=>`<div class="cart-item" style="--c:${cart[id].color||'#E2001A'}">
-      <img src="${cart[id].img || canSrc(cart[id].can)}" alt="" draggable="false"/>
-      <div class="ci-info"><span class="ci-name">${cart[id].name}</span><span class="ci-price">${eur(cart[id].price)}</span></div>
-      <div class="ci-qty"><button type="button" data-act="dec" data-id="${id}" aria-label="Moins">−</button><span>${cart[id].q}</span><button type="button" data-act="inc" data-id="${id}" aria-label="Plus">+</button></div>
-      <button class="ci-remove" type="button" data-act="rm" data-id="${id}" aria-label="Retirer">✕</button></div>`).join('');
-    foot.innerHTML = `<div class="cart-total"><span>Total</span><strong>${eur(total())}</strong></div>
-      <button class="btn btn-primary cart-checkout" type="button">Commander</button>
-      <p class="cart-note">Site de démonstration — la commande se finalise sur la boutique officielle.</p>`;
+    body.innerHTML = undoBar() + `<ul class="cd-lines">${ids.map(id => { const f = FL[id], q = cart[id]; return `
+      <li class="cd-line" style="--c:${f.c}">
+        <span class="cd-thumb"><img src="${canSrc(id)}" alt="" draggable="false" /></span>
+        <span class="cd-meta"><b>${f.name}</b><small>Pack de 24 × 33&nbsp;cl · ${eur2(PACK)}</small></span>
+        <button class="cd-rm" type="button" data-act="rm" data-id="${id}" aria-label="Retirer ${f.name} du panier">${ic(I.x)}</button>
+        ${qtyHTML('', `data-id="${id}"`, q, `Un pack de ${f.name}`, `Packs de ${f.name}`)}
+        <strong class="cd-lt">${eur2(q * PACK)}</strong>
+      </li>`; }).join('')}</ul>${mixRow()}`;
+    const n = nPacks();
+    foot.innerHTML = `
+      <div class="cd-sum"><span>${plural(n, 'pack')} · ${n * CANS} canettes</span><span>soit ${eur2(PACK / CANS)} la canette</span></div>
+      <div class="cd-total"><span>Sous-total</span><strong>${eur2(n * PACK)}</strong></div>
+      <p class="cd-ship">Prix de la boutique officielle. La livraison se règle à l'étape suivante.</p>
+      <button class="btn btn-primary cd-cta" type="button" data-act="checkout">Passer commande</button>`;
+  };
+  function mixRow(){
+    const rest = FLAVORS.filter(f => !cart[f.id]);
+    if (!rest.length) return '';
+    return `<div class="cd-mix"><p class="cd-mix-t">Complète ton mix</p><div class="cd-mix-row">${rest.map(f => `
+      <button class="cd-mix-b" type="button" style="--c:${f.c}" data-act="inc" data-id="${f.id}" aria-label="Ajouter un pack de ${f.name}">
+        <img src="${canSrc(f.id)}" alt="" draggable="false" loading="lazy" /><span>${f.name}</span><i aria-hidden="true">+</i></button>`).join('')}</div></div>`;
   }
-  const open = ()=>{ render(); drawer.classList.add('is-open'); overlay.classList.add('is-open'); drawer.setAttribute('aria-hidden','false'); };
-  const close = ()=>{ drawer.classList.remove('is-open'); overlay.classList.remove('is-open'); drawer.setAttribute('aria-hidden','true'); };
 
-  toggle.addEventListener('click', open);
+  VIEWS.finish = () => {
+    const n = nPacks();
+    body.innerHTML = `
+      <div class="cd-recap"><span>${plural(n, 'pack')} · ${eur2(n * PACK)}</span><button class="cd-link" type="button" data-act="back">Modifier</button></div>
+      <section class="cd-opt cd-opt--wa" aria-labelledby="cdOptWa">
+        <span class="cd-tag">Le plus direct</span>
+        <span class="cd-opt-ic">${WA_SVG}</span>
+        <h4 id="cdOptWa">Commander sur WhatsApp</h4>
+        <p>Ta commande part toute rédigée à l'équipe Dada, qui te confirme la dispo, la livraison et le paiement.</p>
+        <div class="cd-fields">
+          <label><span>Prénom <em>(facultatif)</em></span><input type="text" data-info="prenom" autocomplete="given-name" maxlength="40" value="${esc(info.prenom)}" /></label>
+          <label><span>Ville ou code postal <em>(facultatif)</em></span><input type="text" data-info="ville" autocomplete="address-level2" maxlength="60" value="${esc(info.ville)}" /></label>
+        </div>
+        <a class="cd-wa-btn" href="${waURL(cartMsg())}" target="_blank" rel="noopener" data-act="wa">${WA_SVG}Ouvrir WhatsApp</a>
+      </section>
+      <section class="cd-opt cd-opt--shop" aria-labelledby="cdOptShop">
+        <span class="cd-opt-ic">${ic(I.shop)}</span>
+        <h4 id="cdOptShop">Payer sur la boutique officielle</h4>
+        <p>Paiement en ligne sur dadadrinks.com. Leur boutique ne peut pas recevoir ton panier&nbsp;: tu ajoutes chaque parfum depuis sa fiche, on te guide.</p>
+        <button class="btn btn-ghost cd-cta" type="button" data-act="shop">Voir ma liste</button>
+      </section>`;
+    foot.innerHTML = `<p class="cd-note">Site concept&nbsp;: rien n'est payé ni transmis depuis ce site.</p>`;
+  };
+
+  VIEWS.shop = () => {
+    const ids = IDS.filter(id => cart[id]);
+    const done = ids.filter(id => shopDone.has(id)).length;
+    body.innerHTML = `<p class="cd-intro">Ouvre chaque fiche, choisis la quantité et ajoute au panier sur dadadrinks.com. La disponibilité de chaque parfum s'affiche sur sa fiche.</p>
+      <ul class="cd-check">${ids.map(id => { const f = FL[id], on = shopDone.has(id); return `
+        <li class="${on ? 'is-done' : ''}" style="--c:${f.c}">
+          <label><input type="checkbox" data-done="${id}"${on ? ' checked' : ''} /><span class="cd-box" aria-hidden="true">${ic(I.check)}</span>
+            <img src="${canSrc(id)}" alt="" draggable="false" /><span class="cd-ck-t"><b>${cart[id]} × ${f.name}</b><small>Pack de 24 × 33&nbsp;cl</small></span></label>
+          <a class="cd-open" href="${SHOP}/shop-brine/${SHOP_SLUG[id]}" target="_blank" rel="noopener" data-open="${id}" aria-label="Ouvrir la fiche ${f.name} sur dadadrinks.com">Ouvrir${ic(I.ext)}</a>
+        </li>`; }).join('')}</ul>`;
+    foot.innerHTML = `<div class="cd-prog" aria-hidden="true"><span style="--p:${ids.length ? done / ids.length : 0}"></span></div>
+      <p class="cd-prog-t">Déjà ajoutés sur la boutique&nbsp;: ${done} sur ${ids.length}</p>
+      <a class="btn btn-primary cd-cta" href="${SHOP}/cart" target="_blank" rel="noopener">Payer sur dadadrinks.com</a>`;
+  };
+
+  const sentHTML = (h, p) => `<div class="cd-sent">
+      <span class="cd-sent-ic">${ic(I.check)}</span>
+      <h4>${h}</h4><p>${p}</p>
+      <p class="cd-msg">${esc(lastMsg).replace(/\n/g, '<br>')}</p>
+      <button class="cd-link" type="button" data-act="copy">${ic(I.copy)}WhatsApp ne s'est pas ouvert&nbsp;? Copier le message</button>
+    </div>`;
+  VIEWS.sent = () => {
+    body.innerHTML = sentHTML('Ta commande est prête.', "WhatsApp s'est ouvert avec ton message&nbsp;: il ne reste qu'à l'envoyer. L'équipe Dada te répond pour la dispo, la livraison et le paiement.");
+    foot.innerHTML = `<button class="btn btn-primary cd-cta" type="button" data-act="clear">Vider mon panier</button>
+      <button class="btn btn-ghost cd-cta" type="button" data-act="keep">Garder mon panier</button>`;
+  };
+
+  VIEWS.devis = () => {
+    const vk = Object.keys(VITRINES).filter(k => devis.vitrines[k]);
+    if (!devis.palettes.length && !vk.length){
+      body.innerHTML = undoBar() + `<div class="cd-empty">
+        <img class="cd-empty-pal" src="assets/pros/palette.jpg" alt="" draggable="false" />
+        <h4>Ton devis est vide.</h4>
+        <p>Compose une palette mixte de 25 à 100 packs, ou ajoute une vitrine Dada à ton point de vente.</p>
+        <a class="btn btn-primary" href="professionnels.html#palette" data-go="palette">Composer ma palette</a>
+      </div>`;
+      foot.innerHTML = ''; return;
+    }
+    body.innerHTML = undoBar() + `<ul class="cd-lines">${devis.palettes.map((p, i) => `
+      <li class="cd-line cd-line--pro">
+        <span class="cd-thumb cd-thumb--img"><img src="assets/pros/palette.jpg" alt="" draggable="false" /></span>
+        <span class="cd-meta"><b>Palette · ${p.size} packs</b><small>${mixText(p.mix)}</small></span>
+        <button class="cd-rm" type="button" data-act="rm-pal" data-i="${i}" aria-label="Retirer la palette de ${p.size} packs">${ic(I.x)}</button>
+        <span class="cd-unit">${eur2(TIERS[p.size] / p.size).replace(',00', '')} le pack</span>
+        <strong class="cd-lt">${eur0(TIERS[p.size])}</strong>
+      </li>`).join('')}${vk.map(k => { const v = VITRINES[k], q = devis.vitrines[k]; return `
+      <li class="cd-line cd-line--pro">
+        <span class="cd-thumb cd-thumb--img cd-thumb--fridge"><img src="${v.img}" alt="" draggable="false" /></span>
+        <span class="cd-meta"><b>${v.name}</b><small>+ ${v.gift} colis offerts · ${eur0(v.price)} l'unité</small></span>
+        <button class="cd-rm" type="button" data-act="rm-vit" data-k="${k}" aria-label="Retirer ${v.name} du devis">${ic(I.x)}</button>
+        ${qtyHTML('v', `data-k="${k}"`, q, `Une ${v.name}`, `Nombre de ${v.name}`)}
+        <strong class="cd-lt">${eur0(v.price * q)}</strong>
+      </li>`; }).join('')}</ul>
+      <div class="cd-fields cd-fields--pro">
+        <label><span>Nom</span><input type="text" data-info="nom" autocomplete="name" maxlength="60" value="${esc(info.nom)}" /></label>
+        <label><span>Société / enseigne</span><input type="text" data-info="societe" autocomplete="organization" maxlength="80" value="${esc(info.societe)}" /></label>
+        <label class="cd-f-wide"><span>Ville <em>(facultatif)</em></span><input type="text" data-info="villePro" autocomplete="address-level2" maxlength="60" value="${esc(info.villePro)}" /></label>
+        <p class="cd-err" hidden>Indique ton nom et ta société&nbsp;: l'équipe saura qui recontacter.</p>
+      </div>`;
+    foot.innerHTML = `<div class="cd-total"><span>Total TTC</span><strong>${eur0(devisTotal())}</strong></div>
+      <p class="cd-ship">Tarifs de la boutique pro officielle. Livraison et délais confirmés par l'équipe.</p>
+      <a class="cd-wa-btn cd-cta" href="${waURL(devisMsg())}" target="_blank" rel="noopener" data-act="wa-devis">${WA_SVG}Envoyer le devis sur WhatsApp</a>`;
+  };
+  VIEWS['devis-sent'] = () => {
+    body.innerHTML = sentHTML('Ton devis est prêt.', "WhatsApp s'est ouvert avec ta demande&nbsp;: il ne reste qu'à l'envoyer. L'équipe Dada te répond avec les disponibilités et la livraison.");
+    foot.innerHTML = `<button class="btn btn-primary cd-cta" type="button" data-act="clear-devis">Vider mon devis</button>
+      <button class="btn btn-ghost cd-cta" type="button" data-act="keep">Garder mon devis</button>`;
+  };
+
+  function render(){
+    // garder le focus et le défilement quand on re-dessine la même vue
+    const prevKey = drawer.dataset.view, st = body.scrollTop, sel = focusSel(document.activeElement);
+    renderBadge();
+    tabsEl.hidden = !(IS_PRO || nDevis() > 0);
+    tabsEl.querySelectorAll('[data-tab]').forEach(b => {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle('is-on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+    });
+    tabsEl.querySelector('[data-tab="cart"] b').textContent = nPacks() || '';
+    tabsEl.querySelector('[data-tab="devis"] b').textContent = nDevis() || '';
+    const key = tab === 'cart' ? view : (view === 'sent' ? 'devis-sent' : 'devis');
+    titleEl.textContent = TITLES[key];
+    backBtn.hidden = !(key === 'finish' || key === 'shop');
+    const step = tab === 'cart' && nPacks() ? ({ list:1, finish:2, shop:2, sent:3 })[view] : 0;
+    stepsEl.hidden = !step;
+    [...stepsEl.children].forEach((li, i) => {
+      li.classList.toggle('is-done', i + 1 < step); li.classList.toggle('is-cur', i + 1 === step);
+      if (i + 1 === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+    drawer.dataset.view = key;
+    VIEWS[key]();
+    if (prevKey !== key) body.scrollTop = 0;
+    else {
+      body.scrollTop = st;
+      const n = sel && drawer.querySelector(sel);
+      if (n) n.focus({ preventScroll:true });
+    }
+  }
+  function focusSel(a){
+    if (!a || !drawer.contains(a) || !a.dataset) return null;
+    for (const k of ['info', 'tab', 'done', 'open']) if (a.dataset[k]) return `[data-${k}="${a.dataset[k]}"]`;
+    if (!a.dataset.act) return null;
+    return `[data-act="${a.dataset.act}"]` + ['id', 'k', 'i'].map(k => a.dataset[k] ? `[data-${k}="${a.dataset[k]}"]` : '').join('');
+  }
+  function armUndo(){
+    clearTimeout(undoT);
+    undoT = setTimeout(() => { undo = null; const u = $('.cd-undo'); if (u) u.remove(); }, 6000);
+  }
+
+  /* --- messages envoyés sur WhatsApp --- */
+  function cartMsg(){
+    const n = nPacks();
+    return [`Bonjour l'équipe Dada ! Je voudrais commander :`,
+      ...IDS.filter(id => cart[id]).map(id => `• ${cart[id]} × ${FL[id].name} (pack de 24 × 33 cl)`),
+      `Total : ${plural(n, 'pack')} (${n * CANS} canettes), soit ${eur2(n * PACK)} au prix de la boutique officielle.`,
+      info.prenom && `Prénom : ${info.prenom}`,
+      info.ville && `Livraison : ${info.ville}`,
+      `Pouvez-vous me confirmer la dispo et la livraison ? Merci !`].filter(Boolean).join('\n');
+  }
+  function devisMsg(x){
+    x = x || {};
+    const L = [nDevis() ? `Bonjour l'équipe Dada ! Voici ma demande de devis pro :` : `Bonjour l'équipe Dada ! Je souhaite devenir partenaire et revendre Dada.`];
+    devis.palettes.forEach(p => L.push(`• Palette mixte de ${p.size} packs, ${eur0(TIERS[p.size])} TTC : ${mixText(p.mix, ', ')}`));
+    Object.keys(VITRINES).forEach(k => { const q = devis.vitrines[k]; if (q) L.push(`• ${q} × ${VITRINES[k].name} (+ ${VITRINES[k].gift} colis offerts), ${eur0(VITRINES[k].price * q)} TTC`); });
+    if (nDevis()) L.push(`Total estimé : ${eur0(devisTotal())} TTC`);
+    const nom = x.nom || info.nom, soc = x.societe || info.societe, ville = x.ville || info.villePro;
+    if (nom) L.push(`Nom : ${nom}`);
+    if (soc) L.push(`Société : ${soc}`);
+    if (ville) L.push(`Ville : ${ville}`);
+    if (x.email) L.push(`Email : ${x.email}`);
+    if (x.tel) L.push(`Téléphone : ${x.tel}`);
+    L.push(nDevis() ? `Pouvez-vous me confirmer les disponibilités et la livraison ? Merci !` : `Merci de me recontacter !`);
+    return L.join('\n');
+  }
+  function copyText(txt, btn){
+    const ok = () => { const l = btn.innerHTML; btn.textContent = 'Message copié'; setTimeout(() => { if (btn.isConnected) btn.innerHTML = l; }, 1800); };
+    const fallback = () => {
+      const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(ta); ta.select();
+      let r = false; try { r = document.execCommand('copy'); } catch(e){}
+      ta.remove(); if (r) ok();
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok, fallback); else fallback();
+  }
+
+  /* --- ouvrir / fermer --- */
+  const isOpen = () => drawer.classList.contains('is-open');
+  let lastFocus = null;
+  function open(which){
+    tab = which || (IS_PRO && (nDevis() || !nPacks()) ? 'devis' : 'cart');
+    view = 'list'; undo = null;
+    render();
+    if (!isOpen()) lastFocus = document.activeElement;
+    drawer.classList.add('is-open'); overlay.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false'); toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.classList.add('cart-lock');
+    if (lenis) lenis.stop();
+    hideToast();
+    setTimeout(() => $('.cd-close').focus({ preventScroll:true }), 80);
+  }
+  function close(){
+    if (!isOpen()) return;
+    drawer.classList.remove('is-open'); overlay.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true'); toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.classList.remove('cart-lock');
+    if (lenis) lenis.start();
+    if (view === 'sent') view = 'list';
+    const back = lastFocus && document.contains(lastFocus) && !drawer.contains(lastFocus) ? lastFocus : toggle;
+    back.focus({ preventScroll:true });
+  }
+  const focusTitle = () => titleEl.focus({ preventScroll:true });
+  toggle.addEventListener('click', () => { if (isOpen()) close(); else open(); });
   overlay.addEventListener('click', close);
-  drawer.querySelector('.cart-close').addEventListener('click', close);
-  window.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
-  body.addEventListener('click', e=>{
-    const b = e.target.closest('button[data-act]'); if(!b) return;
-    const id=b.dataset.id; if(!cart[id]) return;
-    if(b.dataset.act==='inc') cart[id].q++;
-    else if(b.dataset.act==='dec') cart[id].q--;
-    else cart[id].q=0;
-    if(cart[id].q<=0) delete cart[id];
-    save(); render();
-  });
-  foot.addEventListener('click', e=>{
-    if(!e.target.closest('.cart-checkout')) return;
-    body.innerHTML = `<div class="cart-done"><span class="cart-done-ic">✓</span><h4>Plus qu'une étape</h4><p>Ce site est une démo&nbsp;: ta commande n'est pas envoyée. Commande pour de vrai sur la <a href="https://www.dadadrinks.com/shop-brine" target="_blank" rel="noopener">boutique officielle Dada</a> — ou, pour les pros, sur <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp</a>.</p></div>`;
-    foot.innerHTML = '';
+
+  drawer.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ e.preventDefault(); close(); return; }
+    const tb = e.target.closest && e.target.closest('[data-tab]');
+    if (tb && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){
+      e.preventDefault(); tab = tb.dataset.tab === 'cart' ? 'devis' : 'cart'; view = 'list'; undo = null; render();
+      tabsEl.querySelector(`[data-tab="${tab}"]`).focus(); return;
+    }
+    if (e.key !== 'Tab') return;
+    const f = [...drawer.querySelectorAll('a[href],button,input,[tabindex="0"]')].filter(el => !el.disabled && el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === titleEl)){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
   });
 
-  // exposé pour les boutons « Ajouter » de la boutique
-  window.dadaAddToCart = (item)=>{ if(!item||!item.key) return;
-    if(cart[item.key]) cart[item.key].q++;
-    else cart[item.key]={q:1, name:item.name, price:item.price, can:item.can, img:item.img, color:item.color};
-    save(); open(); };
+  drawer.addEventListener('input', e => {
+    const k = e.target.dataset && e.target.dataset.info;
+    if (!k) return;
+    info[k] = e.target.value.trim();
+    const wa = $('[data-act="wa"]'); if (wa) wa.href = waURL(cartMsg());
+    const wd = $('[data-act="wa-devis"]'); if (wd) wd.href = waURL(devisMsg());
+    if (k === 'nom' || k === 'societe'){ const er = $('.cd-err'); if (er) er.hidden = true; }
+  });
+  drawer.addEventListener('change', e => {
+    const id = e.target.dataset && e.target.dataset.done;
+    if (!id) return;
+    if (e.target.checked) shopDone.add(id); else shopDone.delete(id);
+    render();
+  });
+
+  drawer.addEventListener('click', e => {
+    const t = e.target.closest('[data-act],[data-tab],[data-go],[data-open]');
+    if (!t || !drawer.contains(t)) return;
+    if (t.dataset.tab){ if (tab !== t.dataset.tab){ tab = t.dataset.tab; view = 'list'; undo = null; render(); } return; }
+    if (t.dataset.go){                            // lien vers une section de la page courante
+      if (document.getElementById(t.dataset.go)){ e.preventDefault(); close(); setTimeout(() => smoothScrollTo('#' + t.dataset.go), 280); }
+      return;                                     // sinon : changement de page (rideau rouge)
+    }
+    if (t.dataset.open){ shopDone.add(t.dataset.open); setTimeout(render, 60); return; }
+    const act = t.dataset.act, id = t.dataset.id, k = t.dataset.k;
+    switch (act){
+      case 'close': close(); break;
+      case 'back': view = view === 'shop' ? 'finish' : 'list'; render(); focusTitle(); break;
+      case 'inc': setQty(id, (cart[id] || 0) + 1); say(`${FL[id].name} : ${plural(cart[id], 'pack')}`); break;
+      case 'dec': setQty(id, (cart[id] || 0) - 1); say(cart[id] ? `${FL[id].name} : ${plural(cart[id], 'pack')}` : `${FL[id].name} retiré du panier`); break;
+      case 'rm': { const q = cart[id]; undo = { label:`${FL[id].name} retiré du panier`, fn:() => setQty(id, q) };
+        setQty(id, 0); armUndo(); say(undo.label); break; }
+      case 'undo': if (undo){ const fn = undo.fn; undo = null; clearTimeout(undoT); fn(); render(); } break;
+      case 'checkout': view = 'finish'; render(); focusTitle(); break;
+      case 'shop': view = 'shop'; render(); focusTitle(); break;
+      case 'wa': lastMsg = cartMsg(); t.href = waURL(lastMsg); setTimeout(() => { view = 'sent'; render(); focusTitle(); }, 150); break;
+      case 'copy': copyText(lastMsg || (tab === 'cart' ? cartMsg() : devisMsg()), t); break;
+      case 'clear': cart = {}; saveCart(); syncCards(); shopDone.clear(); view = 'list'; render(); focusTitle(); say('Panier vidé'); break;
+      case 'keep': view = 'list'; render(); focusTitle(); break;
+      case 'vinc': devis.vitrines[k] = Math.min(MAXQ, (devis.vitrines[k] || 0) + 1); saveDevis(); render(); bump(); break;
+      case 'vdec': devis.vitrines[k] = (devis.vitrines[k] || 0) - 1; if (devis.vitrines[k] <= 0) delete devis.vitrines[k]; saveDevis(); render(); break;
+      case 'rm-vit': { const q = devis.vitrines[k]; delete devis.vitrines[k]; saveDevis();
+        undo = { label:`${VITRINES[k].name} retirée du devis`, fn:() => { devis.vitrines[k] = q; saveDevis(); } }; armUndo(); render(); break; }
+      case 'rm-pal': { const i = +t.dataset.i, p = devis.palettes[i]; if (!p) break; devis.palettes.splice(i, 1); saveDevis();
+        undo = { label:`Palette de ${p.size} packs retirée`, fn:() => { devis.palettes.splice(i, 0, p); saveDevis(); } }; armUndo(); render(); break; }
+      case 'wa-devis':
+        if (!info.nom || !info.societe){
+          e.preventDefault(); const er = $('.cd-err'); if (er) er.hidden = false;
+          const miss = $(!info.nom ? '[data-info="nom"]' : '[data-info="societe"]'); if (miss) miss.focus(); break;
+        }
+        lastMsg = devisMsg(); t.href = waURL(lastMsg); setTimeout(() => { view = 'sent'; render(); focusTitle(); }, 150); break;
+      case 'clear-devis': devis = { palettes:[], vitrines:{} }; saveDevis(); view = 'list'; render(); focusTitle(); say('Devis vidé'); break;
+    }
+  });
+
+  // glisser le panneau vers le bas pour le fermer (mobile)
+  let y0 = null;
+  const SHEET = window.matchMedia('(max-width:680px)');
+  drawer.addEventListener('touchstart', e => { if (SHEET.matches && e.target.closest('.cd-grab,.cd-head')) { y0 = e.touches[0].clientY; drawer.classList.add('is-drag'); } }, { passive:true });
+  drawer.addEventListener('touchmove', e => { if (y0 === null) return; const dy = Math.max(0, e.touches[0].clientY - y0); drawer.style.transform = `translateY(${dy}px)`; }, { passive:true });
+  drawer.addEventListener('touchend', e => {
+    if (y0 === null) return;
+    const dy = e.changedTouches[0].clientY - y0; y0 = null;
+    drawer.classList.remove('is-drag'); drawer.style.transform = '';
+    if (dy > 90) close();
+  });
+
+  /* --- quantités du panier + cartes de la boutique --- */
+  function setQty(id, q, quiet){                  // quiet : la pastille attend l'arrivée de la canette
+    q = Math.max(0, Math.min(MAXQ, q));
+    if (q) cart[id] = q; else delete cart[id];
+    saveCart(); syncCards();
+    if (isOpen()) render(); else if (!quiet) renderBadge();
+  }
+  function addPack(id, img){
+    setQty(id, (cart[id] || 0) + 1, true);
+    fly(img, bump);
+    const f = FL[id], q = cart[id];
+    toastShow({ img:canSrc(id), text:`<b>+1 pack ${f.name}</b><small>${plural(q, 'pack')} de ${f.name} dans ton panier</small>`,
+      action:'Voir le panier', onAction:() => open('cart') });
+  }
+  function syncCards(){
+    document.querySelectorAll('.fc-ctl[data-id]').forEach(el => {
+      const id = el.dataset.id, q = cart[id] || 0, f = FL[id];
+      const step = el.querySelector('.fc-step'), had = el.contains(document.activeElement);
+      if (q > 0 && step){ step.querySelector('output').textContent = q; return; }
+      if (q > 0){
+        el.innerHTML = `<div class="fc-step" role="group" aria-label="Packs de ${f.name} dans ton panier">
+          <button type="button" data-act="dec" aria-label="Un pack de ${f.name} en moins">−</button><output>${q}</output>
+          <button type="button" data-act="inc" aria-label="Un pack de ${f.name} en plus">+</button></div>`;
+        if (had) el.querySelector('[data-act="inc"]').focus({ preventScroll:true });
+      } else if (step || !el.firstElementChild){
+        el.innerHTML = `<button class="fc-add" type="button" data-act="add" data-cursor="Ajouter" aria-label="Ajouter un pack de ${f.name} au panier">Ajouter <span aria-hidden="true">+</span></button>`;
+        if (had) el.querySelector('button').focus({ preventScroll:true });
+      }
+    });
+  }
+  const shopGridEl = document.getElementById('shopGrid');
+  if (shopGridEl){
+    // phase de capture : les cartes ont leurs propres effets au clic
+    shopGridEl.addEventListener('click', e => {
+      const b = e.target.closest('.fc-ctl [data-act]');
+      if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      const id = b.closest('.fc-ctl').dataset.id;
+      if (b.dataset.act === 'dec'){ setQty(id, (cart[id] || 0) - 1); say(cart[id] ? `${FL[id].name} : ${plural(cart[id], 'pack')}` : `${FL[id].name} retiré du panier`); return; }
+      const r = b.getBoundingClientRect();
+      dadaFizz(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, 12);
+      addPack(id, b.closest('.flavor-card').querySelector('.can-fx__img'));
+    }, true);
+  }
+  syncCards();
+
+  /* --- devis pro : vitrines --- */
+  document.querySelectorAll('[data-vitrine]').forEach(btn => btn.addEventListener('click', e => {
+    e.preventDefault();
+    const k = btn.dataset.vitrine, v = VITRINES[k];
+    if (!v) return;
+    devis.vitrines[k] = Math.min(MAXQ, (devis.vitrines[k] || 0) + 1); saveDevis();
+    const r = btn.getBoundingClientRect();
+    dadaFizz(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, 12);
+    fly(btn.closest('.fridge-card') && btn.closest('.fridge-card').querySelector('img'), bump);
+    toastShow({ img:v.img, text:`<b>${v.name} ajoutée au devis</b><small>+ ${v.gift} colis offerts · ${eur0(v.price)}</small>`,
+      action:'Voir le devis', onAction:() => open('devis') });
+  }));
+
+  /* --- devis pro : composeur de palette mixte --- */
+  const palBar = document.getElementById('palBar'), packGridEl = document.getElementById('packGrid');
+  if (palBar && packGridEl){
+    const draft = load('dada-palette-draft') || {};
+    let size = TIERS[draft.size] ? +draft.size : 25;
+    const mix = {};
+    for (const k in (draft.mix || {})){ const q = Math.floor(+draft.mix[k] || 0); if (FL[k] && q > 0) mix[k] = Math.min(100, q); }
+    const tiers = [...document.querySelectorAll('.tier[data-size]')];
+    const el = id => document.getElementById(id);
+    const sum = () => IDS.reduce((a, id) => a + (mix[id] || 0), 0);
+    const saveDraft = () => keep('dada-palette-draft', { size, mix });
+    function paint(){
+      const n = sum(), left = size - n;
+      tiers.forEach(t => {
+        const on = +t.dataset.size === size, b = t.querySelector('.tier-pick');
+        t.classList.toggle('is-picked', on);
+        if (b){ b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.textContent = on ? 'Choisie' : 'Choisir'; }
+      });
+      packGridEl.querySelectorAll('.pack-card[data-id]').forEach(card => {
+        const q = mix[card.dataset.id] || 0, inp = card.querySelector('.pk-ctl input');
+        card.classList.toggle('is-in', q > 0);
+        card.querySelector('.pk-n').textContent = q;
+        if (inp && document.activeElement !== inp) inp.value = q;
+      });
+      el('palN').textContent = n; el('palMax').textContent = size;
+      el('palSize').textContent = `Palette de ${size} packs · ${eur0(TIERS[size])} TTC`;
+      el('palMeter').innerHTML = IDS.filter(id => mix[id]).map(id => `<i style="width:${Math.min(100, mix[id] / size * 100)}%;background:${FL[id].c}" title="${mix[id]} ${FL[id].name}"></i>`).join('');
+      const hint = el('palHint');
+      hint.classList.toggle('is-warn', left < 0);
+      hint.textContent = left > 0 ? (n ? `Encore ${plural(left, 'pack')} à répartir.` : 'Répartis tes packs avec les boutons + sous chaque parfum.')
+        : left === 0 ? 'Palette complète. Ajoute-la à ton devis.' : `${plural(-left, 'pack')} de trop pour cette palette.`;
+      el('palAdd').setAttribute('aria-disabled', left === 0 ? 'false' : 'true');
+      el('palFill').hidden = left <= 0;
+      saveDraft();
+    }
+    const shake = () => { const h = el('palHint'); h.classList.remove('is-shake'); void h.offsetWidth; h.classList.add('is-shake'); };
+    function setMix(id, q){
+      const cur = mix[id] || 0, max = Math.max(0, size - (sum() - cur));
+      let v = Math.max(0, Math.floor(q) || 0);
+      if (v > cur && v > max){ v = Math.max(cur, max); shake(); }   // pas au-delà de la palette
+      if (v > 0) mix[id] = v; else delete mix[id];
+      paint();
+    }
+    tiers.forEach(t => {
+      const pick = () => { size = +t.dataset.size; paint(); };
+      t.addEventListener('click', e => { if (!e.target.closest('a')) pick(); });
+    });
+    packGridEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-pal]');
+      if (!b || b.tagName !== 'BUTTON') return;
+      const id = b.closest('.pack-card').dataset.id;
+      setMix(id, (mix[id] || 0) + (b.dataset.pal === 'inc' ? 1 : -1));
+    });
+    packGridEl.addEventListener('change', e => {
+      const inp = e.target.closest('.pk-ctl input');
+      if (inp) setMix(inp.closest('.pack-card').dataset.id, +inp.value);
+    });
+    packGridEl.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.pk-ctl input')) e.target.blur(); });
+    el('palFill').addEventListener('click', () => {
+      let left = size - sum();
+      if (left <= 0) return;
+      let ids = IDS.filter(id => mix[id]);
+      if (!ids.length) ids = IDS.slice();
+      for (let i = 0; left > 0; i++, left--) mix[ids[i % ids.length]] = (mix[ids[i % ids.length]] || 0) + 1;
+      paint();
+    });
+    el('palReset').addEventListener('click', () => { for (const k in mix) delete mix[k]; paint(); });
+    el('palAdd').addEventListener('click', () => {
+      if (sum() !== size){ shake(); return; }
+      devis.palettes.push({ size, mix:{ ...mix } }); saveDevis();
+      for (const k in mix) delete mix[k];
+      paint(); fly(document.querySelector('.palette-visual img'), bump);
+      toastShow({ img:'assets/pros/palette.jpg', text:`<b>Palette de ${size} packs ajoutée</b><small>${eur0(TIERS[size])} TTC dans ton devis pro</small>`,
+        action:'Voir le devis', onAction:() => open('devis') });
+    });
+    paint();
+  }
+
+  /* --- formulaire pro : la demande part sur WhatsApp, avec le devis --- */
+  const proForm = document.getElementById('proForm');
+  if (proForm){
+    proForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const v = id => (document.getElementById(id).value || '').trim();
+      const x = { nom:v('pfNom'), societe:v('pfSoc'), email:v('pfMail'), tel:v('pfTel') };
+      const note = document.getElementById('pfNote');
+      const bad = !x.nom ? 'pfNom' : !x.societe ? 'pfSoc' : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(x.email) ? 'pfMail' : null;
+      proForm.querySelectorAll('input').forEach(i => i.removeAttribute('aria-invalid'));
+      if (bad){
+        document.getElementById(bad).setAttribute('aria-invalid', 'true'); document.getElementById(bad).focus();
+        note.classList.add('is-err');
+        note.textContent = bad === 'pfMail' ? 'Indiquez un email valide.' : 'Indiquez votre nom et votre société.';
+        return;
+      }
+      info.nom = x.nom; info.societe = x.societe;
+      window.open(waURL(devisMsg(x)), '_blank', 'noopener');
+      note.classList.remove('is-err');
+      note.textContent = nDevis() ? "WhatsApp s'est ouvert avec votre demande et votre devis : il ne reste qu'à l'envoyer."
+        : "WhatsApp s'est ouvert avec votre demande : il ne reste qu'à l'envoyer.";
+    });
+  }
+
+  // autre onglet : on suit les changements
+  window.addEventListener('storage', e => {
+    if (e.key !== 'dada-cart-v2' && e.key !== 'dada-devis-v1') return;
+    cart = readCart(); devis = readDevis(); syncCards();
+    if (isOpen()) render(); else renderBadge();
+  });
   renderBadge();
+})();
+
+/* arrivée sur une ancre depuis une autre page (ex. particuliers.html#boutique) */
+(function(){
+  const id = (location.hash || '').slice(1);
+  if (!/^[a-z][a-z0-9-]*$/i.test(id) || !document.getElementById(id)) return;
+  window.addEventListener('load', () => setTimeout(() => smoothScrollTo('#' + id), 500));
 })();
 
 
@@ -974,20 +1568,6 @@ function dadaFizz(x, y, n){
         duration:gsap.utils.random(.55,1.05), ease:'power2.out', onComplete:()=>b.remove() });
   }
 }
-/* ajout panier → fizz + pop de l'icône
-   (phase de capture : les boutons boutique font stopPropagation) */
-document.addEventListener('click', e=>{
-  const btn = e.target.closest('.fc-add,.pk-add,.fr-add');
-  if (!btn) return;
-  let x=e.clientX, y=e.clientY;
-  if (!x && !y){ const r=btn.getBoundingClientRect(); x=r.left+r.width/2; y=r.top+r.height/2; }
-  dadaFizz(x, y, 12);
-  // on anime le SVG interne : le bouton a une transition CSS + un :hover
-  // transform qui entreraient en conflit avec un tween sur le bouton lui-même
-  const c = document.querySelector('.cart-toggle svg');
-  if (c && !REDUCED) gsap.fromTo(c, {scale:1}, {scale:1.28, duration:.16, yoyo:true, repeat:1,
-    ease:'power2.out', transformOrigin:'50% 50%', clearProps:'transform'});
-}, true);
 
 /* --- transition entre pages : wipe rouge --- */
 (function(){

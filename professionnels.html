@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://viudesdominique12-droid.github.io/dada-drinks-site/assets/photos/zoom-4.jpg" />
 <meta property="og:url" content="https://viudesdominique12-droid.github.io/dada-drinks-site/professionnels.html" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="stylesheet" href="css/style.css?v=68" />
+<link rel="stylesheet" href="css/style.css?v=69" />
 </head>
 <body>
 
@@ -98,24 +98,39 @@
   </section>
 
   <!-- PALETTES — tarifs TTC de la boutique pro officielle (dadadrinks.com/shop-professionnels) -->
-  <section class="packs">
+  <section class="packs" id="palette">
     <div class="container">
       <div class="page-section-head">
         <p class="section-tag"><span>02</span> Palettes</p>
         <h2>Ta palette, <span class="gradient-text">tes saveurs.</span></h2>
-        <p>Des palettes mixtes de packs de 24 canettes de 33&nbsp;cl&nbsp;: tu choisis les parfums, on prépare. Tarifs TTC.</p>
+        <p>Des palettes mixtes de packs de 24 canettes de 33&nbsp;cl&nbsp;: choisis la taille, répartis les packs entre les 13 parfums, on prépare. Tarifs TTC.</p>
       </div>
       <div class="palette-wrap">
         <figure class="palette-visual"><img src="assets/pros/palette.jpg" alt="Palette mixte de packs Dada : Litchi, Mojito, Pomme, Cerise, Cola et Melon — saveurs au choix" loading="lazy" /></figure>
         <div class="palette-tiers">
-        <article class="tier"><span class="tier-n">25</span><span class="tier-l">packs</span><b class="tier-p">450&nbsp;€</b><span class="tier-u">soit 18&nbsp;€ le pack</span><button class="fr-add" type="button" data-key="palette-25" data-name="Palette mixte · 25 packs" data-price="450" data-img="assets/pros/palette.jpg" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></article>
-        <article class="tier"><span class="tier-n">50</span><span class="tier-l">packs</span><b class="tier-p">900&nbsp;€</b><span class="tier-u">soit 18&nbsp;€ le pack</span><button class="fr-add" type="button" data-key="palette-50" data-name="Palette mixte · 50 packs" data-price="900" data-img="assets/pros/palette.jpg" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></article>
-        <article class="tier"><span class="tier-n">70</span><span class="tier-l">packs</span><b class="tier-p">1 155&nbsp;€</b><span class="tier-u">soit 16,50&nbsp;€ le pack</span><button class="fr-add" type="button" data-key="palette-70" data-name="Palette mixte · 70 packs" data-price="1155" data-img="assets/pros/palette.jpg" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></article>
-        <article class="tier tier--best"><span class="tier-badge">Meilleur prix</span><span class="tier-n">100</span><span class="tier-l">packs</span><b class="tier-p">1 600&nbsp;€</b><span class="tier-u">soit 16&nbsp;€ le pack</span><button class="fr-add" type="button" data-key="palette-100" data-name="Palette mixte · 100 packs" data-price="1600" data-img="assets/pros/palette.jpg" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></article>
+        <article class="tier" data-size="25"><span class="tier-n">25</span><span class="tier-l">packs</span><b class="tier-p">450&nbsp;€</b><span class="tier-u">soit 18&nbsp;€ le pack</span><button class="tier-pick" type="button" aria-pressed="false">Choisir</button></article>
+        <article class="tier" data-size="50"><span class="tier-n">50</span><span class="tier-l">packs</span><b class="tier-p">900&nbsp;€</b><span class="tier-u">soit 18&nbsp;€ le pack</span><button class="tier-pick" type="button" aria-pressed="false">Choisir</button></article>
+        <article class="tier" data-size="70"><span class="tier-n">70</span><span class="tier-l">packs</span><b class="tier-p">1 155&nbsp;€</b><span class="tier-u">soit 16,50&nbsp;€ le pack</span><button class="tier-pick" type="button" aria-pressed="false">Choisir</button></article>
+        <article class="tier tier--best" data-size="100"><span class="tier-badge">Meilleur prix</span><span class="tier-n">100</span><span class="tier-l">packs</span><b class="tier-p">1 600&nbsp;€</b><span class="tier-u">soit 16&nbsp;€ le pack</span><button class="tier-pick" type="button" aria-pressed="false">Choisir</button></article>
         </div>
       </div>
-      <p class="pk-intro">13 saveurs au choix</p>
+      <p class="pk-intro">Répartis tes packs · 13 saveurs au choix</p>
       <div class="pack-grid" id="packGrid"><!-- packs injected by JS --></div>
+      <div class="pal-bar" id="palBar">
+        <div class="pal-info">
+          <span class="pal-size" id="palSize">Palette de 25 packs · 450&nbsp;€ TTC</span>
+          <span class="pal-count"><b id="palN">0</b>&nbsp;/&nbsp;<span id="palMax">25</span> packs</span>
+        </div>
+        <div class="pal-mid">
+          <div class="pal-meter" id="palMeter" aria-hidden="true"></div>
+          <p class="pal-hint" id="palHint" aria-live="polite">Répartis tes packs avec les boutons + sous chaque parfum.</p>
+        </div>
+        <div class="pal-actions">
+          <button type="button" class="pal-ghost" id="palFill">Répartir le reste</button>
+          <button type="button" class="pal-ghost pal-ghost--ic" id="palReset" aria-label="Tout remettre à zéro" title="Tout remettre à zéro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4.5H8"/></svg></button>
+          <button type="button" class="btn btn-primary pal-add" id="palAdd" aria-disabled="true">Ajouter<span class="pal-add-x">au devis</span></button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -138,7 +153,7 @@
           <h3>Vitrine Slim</h3>
           <p class="fr-cap">Format compact · 39 × 48 × 188&nbsp;cm · 60&nbsp;kg</p>
           <p class="fr-gift">+ 10 colis offerts</p>
-          <div class="fr-buy"><span class="fr-price">718&nbsp;€</span><button class="fr-add" type="button" data-key="vitrine-slim" data-name="Vitrine Slim + 10 colis" data-price="718" data-img="assets/photos/frigo-slim.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+          <div class="fr-buy"><span class="fr-price">718&nbsp;€</span><button class="fr-add" type="button" data-vitrine="slim" data-cursor="Ajouter">Ajouter au devis <span aria-hidden="true">+</span></button></div>
         </article>
         <article class="fridge-card">
           <span class="fr-tag">Moyen</span>
@@ -146,7 +161,7 @@
           <h3>Vitrine Moyen</h3>
           <p class="fr-cap">Le classique · 61 × 67 × 200&nbsp;cm · 92&nbsp;kg</p>
           <p class="fr-gift">+ 20 colis offerts</p>
-          <div class="fr-buy"><span class="fr-price">918&nbsp;€</span><button class="fr-add" type="button" data-key="vitrine-moyen" data-name="Vitrine Moyen + 20 colis" data-price="918" data-img="assets/photos/frigo-moyen.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+          <div class="fr-buy"><span class="fr-price">918&nbsp;€</span><button class="fr-add" type="button" data-vitrine="moyen" data-cursor="Ajouter">Ajouter au devis <span aria-hidden="true">+</span></button></div>
         </article>
         <article class="fridge-card">
           <span class="fr-tag">Big</span>
@@ -154,7 +169,7 @@
           <h3>Vitrine Big</h3>
           <p class="fr-cap">Deux portes · 113 × 72,5 × 202,5&nbsp;cm · 175&nbsp;kg</p>
           <p class="fr-gift">+ 24 colis offerts</p>
-          <div class="fr-buy"><span class="fr-price">1&nbsp;620&nbsp;€</span><button class="fr-add" type="button" data-key="vitrine-big" data-name="Vitrine Big + 24 colis" data-price="1620" data-img="assets/photos/frigo-double.png" data-cursor="Ajouter">Ajouter <span aria-hidden="true">+</span></button></div>
+          <div class="fr-buy"><span class="fr-price">1&nbsp;620&nbsp;€</span><button class="fr-add" type="button" data-vitrine="big" data-cursor="Ajouter">Ajouter au devis <span aria-hidden="true">+</span></button></div>
         </article>
       </div>
     </div>
@@ -164,14 +179,15 @@
   <section class="container" id="devenir-partenaire">
     <div class="pro-cta">
       <h2>Devenez partenaire Dada.</h2>
-      <p>Une palette, une vitrine, une question&nbsp;? Laissez vos coordonnées, l'équipe vous rappelle. Le plus rapide&nbsp;: WhatsApp.</p>
-      <form class="pro-form" onsubmit="return false;">
-        <input type="text" placeholder="Votre nom" aria-label="Nom" required />
-        <input type="text" placeholder="Société / enseigne" aria-label="Société" required />
-        <input type="email" placeholder="Email pro" aria-label="Email" required />
-        <input type="tel" placeholder="Téléphone (facultatif)" aria-label="Téléphone" />
-        <button class="btn" data-cursor="Envoyer">Être recontacté</button>
+      <p>Une palette, une vitrine, une question&nbsp;? Laissez vos coordonnées&nbsp;: votre demande part sur WhatsApp, toute rédigée, avec votre devis s'il y en a un.</p>
+      <form class="pro-form" id="proForm" novalidate>
+        <input id="pfNom" type="text" placeholder="Votre nom" aria-label="Nom" autocomplete="name" required />
+        <input id="pfSoc" type="text" placeholder="Société / enseigne" aria-label="Société" autocomplete="organization" required />
+        <input id="pfMail" type="email" placeholder="Email pro" aria-label="Email" autocomplete="email" required />
+        <input id="pfTel" type="tel" placeholder="Téléphone (facultatif)" aria-label="Téléphone" autocomplete="tel" />
+        <button class="btn" type="submit" data-cursor="Envoyer">Envoyer ma demande</button>
       </form>
+      <p class="pro-form-note" id="pfNote" role="status"></p>
       <a class="pro-wa" href="https://wa.me/33782206131" target="_blank" rel="noopener" data-cursor="Go"><span aria-hidden="true">●</span> WhatsApp&nbsp;: +33 7 82 20 61 31</a>
     </div>
   </section>
@@ -224,7 +240,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="js/main.js?v=68"></script>
+<script src="js/main.js?v=69"></script>
 <script src="js/fx.js?v=68"></script>
 </body>
 </html>
