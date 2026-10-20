@@ -1362,7 +1362,16 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
 @keyframes expDrift{to{transform:scale(1.28) rotate(6deg)}}
 .exp-can-col .exp-bubbles{z-index:1}
 .exp-can-col .exp-can{position:relative;z-index:2}
-@media(max-width:980px){.exp-backdrop{width:min(380px,84vw)}}
+@media(max-width:980px){
+  .exp-backdrop{width:min(380px,84vw,calc(46svh - 30px))}
+  /* l'en-tête fixe (~78 px) passait devant le haut de la canette : on lui réserve sa place */
+  .exp-sticky{padding-top:78px;box-sizing:border-box;row-gap:0}
+  .exp-can-col{height:calc(46svh - 30px)}
+  .exp-can{height:calc(44svh - 70px)}
+  .exp-text-col{min-height:calc(54svh - 48px);justify-content:flex-start}
+  .exp-text-col .section-tag{top:8px}
+  .exp-step{top:54px}
+}
 @media(prefers-reduced-motion:reduce){.exp-backdrop img{animation:none}}
 
 /* --- COLLABS : deux téléphones (TikTok + reel Instagram) --- */

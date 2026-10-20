@@ -508,19 +508,21 @@ if (!REDUCED && gammePin && track && !GAMME_SWIPE){
   if (!steps.length) return;
   steps[0].classList.add('is-active');
   if (REDUCED){ steps.forEach(s=>s.classList.add('is-active')); return; }
+  // sur mobile la canette a peu de marge sous l'en-tête fixe : mouvement vertical réduit
+  const amp = window.matchMedia('(max-width:980px)').matches ? 0.3 : 1;
   ScrollTrigger.create({
     trigger:'.experience', start:'top top', end:'bottom bottom', scrub:true,
     onUpdate:self=>{
       const p = self.progress;
       const idx = Math.min(steps.length-1, Math.floor(p*steps.length*0.999));
       steps.forEach((s,i)=> s.classList.toggle('is-active', i===idx));
-      gsap.set(expCan, { rotationY:-16+p*32, y:(p-0.5)*-50, rotationZ:(p-0.5)*6 });
+      gsap.set(expCan, { rotationY:-16+p*32, y:(p-0.5)*-50*amp, rotationZ:(p-0.5)*6 });
       // le reflet glisse sur le métal à mesure que la canette pivote
       expCan.style.setProperty('--sx', (118 - p*136).toFixed(1) + '%');
     }
   });
   // parallax the can column slightly
-  gsap.to(expCan, { yPercent:-6, ease:'none',
+  gsap.to(expCan, { yPercent:-6*amp, ease:'none',
     scrollTrigger:{ trigger:'.experience', start:'top bottom', end:'bottom top', scrub:true }});
 })();
 
