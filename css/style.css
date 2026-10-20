@@ -656,12 +656,11 @@ html.cart-lock{overflow:hidden}
   .nav-links{display:none}
   .nav-burger{display:flex}
   .btn-nav{display:none}
-  /* --- menu mobile ouvert --- */
-  .nav.nav-open{flex-wrap:wrap;row-gap:4px;background:rgba(247,241,233,.97);backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--line);padding-bottom:24px}
-  .nav.nav-open .nav-links{display:flex;flex-direction:column;gap:18px;flex-basis:100%;order:3;margin-top:14px}
-  .nav.nav-open .nav-links a{font-size:21px;color:var(--ink)}
-  .nav.nav-open .btn-nav{display:inline-flex;flex-basis:100%;order:4;justify-content:center;margin-top:4px}
+  /* --- menu mobile : panneau compact (.nav-sheet, créé en JS) --- */
+  .nav.nav-open{background:rgba(247,241,233,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .nav-actions{margin-left:auto;margin-right:18px}
+  .cart-toggle{width:42px;height:42px}
+  .cart-toggle svg{width:20px;height:20px}
   .nav.nav-open .nav-burger span:nth-child(1){transform:translateY(3.5px) rotate(45deg)}
   .nav.nav-open .nav-burger span:nth-child(2){transform:translateY(-3.5px) rotate(-45deg)}
   .footer-grid{grid-template-columns:1fr}
@@ -765,12 +764,12 @@ html.cart-lock{overflow:hidden}
 .deck-hint{display:inline-block;margin-top:8px;font-family:var(--font-display);font-weight:700;font-size:13px;
   text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
 .benefits.deck{position:relative;padding:0}                 /* hauteur fixée en JS (svh) */
-.deck-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;
+.deck-pin{position:sticky;top:0;height:100svh;box-sizing:border-box;padding-top:72px;overflow:hidden;display:grid;place-items:center;
   background:color-mix(in srgb, var(--deck-c,#E2001A) 22%, var(--bg));transition:background .55s var(--ease)}
 .deck-pin::before{content:"";position:absolute;inset:0;z-index:0;
   background:radial-gradient(62% 56% at 50% 44%, color-mix(in srgb, var(--deck-c,#E2001A) 20%, transparent), transparent 72%);
   transition:background .55s var(--ease)}
-.deck-stage{position:relative;z-index:2;width:min(440px,86vw);height:min(600px,76svh)}
+.deck-stage{position:relative;z-index:2;width:min(440px,86vw);height:min(560px,70svh)}
 .bcard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;
   border-radius:28px;overflow:hidden;background:var(--c);will-change:transform,opacity;
   box-shadow:0 40px 90px -34px rgba(0,0,0,.5);border-top:1px solid rgba(255,255,255,.22)}
@@ -800,13 +799,14 @@ html.cart-lock{overflow:hidden}
   cursor:pointer;transition:transform .35s var(--ease),background .35s,border-color .35s,box-shadow .35s}
 .deck-tick.is-on{border-color:var(--c);background:var(--c)}
 .deck-tick.is-current{transform:scale(1.7);box-shadow:0 0 0 6px color-mix(in srgb,var(--c) 22%,transparent)}
-.deck-count{position:absolute;left:clamp(16px,4vw,40px);bottom:32px;z-index:4;font-family:var(--font-display);
+.deck-count{position:absolute;left:clamp(16px,4vw,40px);bottom:32px;z-index:1;font-family:var(--font-display);
   font-weight:900;font-size:14px;letter-spacing:.04em;color:var(--ink-soft)}
-@media(max-width:540px){.deck-stage{width:88vw;height:72svh}.bcard-text{left:22px;bottom:24px;max-width:16ch}.deck-rail{right:12px}}
+@media(max-width:540px){.deck-stage{width:88vw;height:68svh}.bcard-text{left:22px;bottom:24px;max-width:16ch}.deck-rail{right:12px}}
 @media(prefers-reduced-motion:reduce){.bcard-can{animation:none!important}}
 /* fallback (reduced/sans ScrollTrigger) : pile verticale lisible */
 .benefits.deck.is-static{height:auto!important}
 .benefits.deck.is-static .deck-pin{position:static;height:auto;display:block;padding:10px 0 60px}
+.benefits.deck.is-static .bcard-ghost,.benefits.deck.is-static .bcard-chip{opacity:1!important}
 .benefits.deck.is-static .deck-stage{position:static;width:min(440px,90vw);height:auto;margin:0 auto;display:grid;gap:22px}
 .benefits.deck.is-static .bcard{position:relative;top:auto;left:auto;transform:none;opacity:1!important;height:min(560px,82vh)}
 .benefits.deck.is-static .deck-rail,.benefits.deck.is-static .deck-count{display:none}
@@ -1558,3 +1558,30 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
 .footer-social + .footer-bottom{margin-top:26px}
 @media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr}.footer-brand{grid-column:1/-1}}
 @media (max-width:680px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px 20px}.footer-social{margin-top:40px}}
+
+/* --- menu mobile : 4 rubriques en 2 × 2 + Contact / WhatsApp, posé sous l'en-tête --- */
+.nav-sheet,.nav-scrim{display:none}
+@media (max-width:680px){
+  .nav-sheet{display:block;position:absolute;top:calc(100% + 8px);left:12px;right:12px;padding:10px;border-radius:22px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 30px 60px -26px rgba(10,1,3,.5);transform-origin:top right;opacity:0;visibility:hidden;transform:translateY(-10px) scale(.97);
+    transition:opacity .22s var(--ease),transform .4s var(--ease),visibility 0s linear .4s}
+  .nav.nav-open .nav-sheet{opacity:1;visibility:visible;transform:none;transition:opacity .22s var(--ease),transform .4s var(--ease),visibility 0s}
+  .ns-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ns-grid a{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;height:48px;padding:0 12px 0 14px;border-radius:14px;background:var(--bg);
+    font-family:var(--font-display);font-weight:700;font-size:14.5px;color:var(--ink);transition:background .25s,color .25s}
+  .ns-grid a:active{background:color-mix(in srgb,var(--rouge) 10%,var(--bg))}
+  .ns-grid a svg{flex:none;width:14px;height:14px;color:var(--ink-soft)}
+  .ns-grid a.is-here{background:#fff;color:var(--rouge);box-shadow:inset 0 0 0 2px var(--rouge)}
+  .ns-grid a.is-here svg{color:var(--rouge)}
+  .ns-foot{display:flex;gap:8px;margin-top:8px}
+  .ns-contact{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;height:46px;border-radius:30px;background:var(--rouge);color:#fff;
+    font-family:var(--font-display);font-weight:700;font-size:15px;box-shadow:0 10px 24px -12px rgba(226,0,26,.7)}
+  .ns-wa{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#25D366;color:#fff}
+  .ns-wa svg{width:22px;height:22px}
+  .nav-scrim{display:block;position:fixed;inset:0;z-index:999;background:rgba(10,1,3,.32);opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s linear .3s}
+  .nav-scrim.is-on{opacity:1;visibility:visible;transition:opacity .3s,visibility 0s}
+}
+
+/* --- atouts pro : cartes empilées (voile des cartes recouvertes) --- */
+.bcard-dim{position:absolute;inset:0;z-index:6;pointer-events:none;background:#0A0103;opacity:0;border-radius:inherit}
+.benefits.deck.is-static .bcard-dim{display:none}

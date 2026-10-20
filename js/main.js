@@ -138,21 +138,39 @@ if (nav) ScrollTrigger.create({ start:'top -60', onUpdate:self=>{
   nav.classList.toggle('scrolled', self.scroll() > 60);
 }});
 
-/* ---------- MOBILE MENU (burger) ---------- */
+/* ---------- MOBILE MENU (burger) : panneau compact sous l'en-tête ---------- */
 (function(){
   const burger = document.getElementById('burger');
   if (!burger || !nav) return;
-  burger.setAttribute('aria-controls','nav');
-  burger.setAttribute('aria-expanded','false');
-  burger.setAttribute('aria-label','Menu');
+  const here = location.pathname.split('/').pop() || 'index.html';
+  const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
+  const sheet = document.createElement('div');
+  sheet.className = 'nav-sheet'; sheet.id = 'navSheet';
+  sheet.innerHTML = `<nav class="ns-grid" aria-label="Menu">${[...nav.querySelectorAll('.nav-links a')].map(a =>
+      `<a href="${a.getAttribute('href')}"${a.dataset.page === here ? ' class="is-here" aria-current="page"' : ''}>${a.textContent}${chev}</a>`).join('')}</nav>
+    <div class="ns-foot">
+      <a class="ns-contact" href="contact.html">Contact <span class="btn-dot"></span></a>
+      <a class="ns-wa" href="https://wa.me/33782206131" target="_blank" rel="noopener" aria-label="Écrire à Dada sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967c-.273-.099-.471-.148-.67.15c-.197.297-.767.966-.94 1.164c-.173.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.018-.458.13-.606c.134-.133.298-.347.446-.52s.198-.298.298-.497c.099-.198.05-.371-.025-.52s-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51a13 13 0 0 0-.57-.01c-.198 0-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479c0 1.462 1.065 2.875 1.213 3.074s2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625c.712.227 1.36.195 1.871.118c.571-.085 1.758-.719 2.006-1.413s.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.870 9.870 0 0 1-5.031-1.378l-.361-.214l-3.741.982l.998-3.648l-.235-.374a9.860 9.860 0 0 1-1.510-5.260c.001-5.450 4.436-9.884 9.888-9.884c2.640 0 5.122 1.030 6.988 2.898a9.820 9.820 0 0 1 2.893 6.994c-.003 5.450-4.437 9.884-9.885 9.884m8.413-18.297A11.820 11.820 0 0 0 12.050 0C5.495 0 .160 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.900 11.900 0 0 0 5.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.820 11.820 0 0 0-3.480-8.413"/></svg></a>
+    </div>`;
+  nav.appendChild(sheet);
+  const scrim = document.createElement('div');
+  scrim.className = 'nav-scrim'; document.body.appendChild(scrim);
+  burger.setAttribute('aria-controls', 'navSheet');
+  let openY = 0;
   const setOpen = open => {
-    nav.classList.toggle('nav-open', open);
+    nav.classList.toggle('nav-open', open); scrim.classList.toggle('is-on', open);
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Menu');
+    openY = window.pageYOffset;
   };
+  setOpen(false);
   burger.addEventListener('click', ()=> setOpen(!nav.classList.contains('nav-open')));
-  nav.querySelectorAll('.nav-links a, .btn-nav').forEach(a=>
-    a.addEventListener('click', ()=> setOpen(false)));
+  scrim.addEventListener('click', ()=> setOpen(false));
+  sheet.addEventListener('click', e=>{ if (e.target.closest('a')) setOpen(false); });
   window.addEventListener('keydown', e=>{ if (e.key==='Escape') setOpen(false); });
+  // on referme dès qu'on fait défiler la page, ou si l'écran s'élargit
+  window.addEventListener('scroll', ()=>{ if (nav.classList.contains('nav-open') && Math.abs(window.pageYOffset - openY) > 60) setOpen(false); }, {passive:true});
+  window.matchMedia('(min-width:681px)').addEventListener('change', e=>{ if (e.matches) setOpen(false); });
 })();
 
 /* ============================================================
@@ -669,7 +687,8 @@ if (!REDUCED && document.querySelector('.band')){
     const el = document.createElement('article');
     el.className = 'bcard'; el.style.setProperty('--c', b.c);
     el.innerHTML =
-      `<span class="bcard-ghost">${String(i+1).padStart(2,'0')}</span>
+      `<span class="bcard-dim" aria-hidden="true"></span>
+       <span class="bcard-ghost">${String(i+1).padStart(2,'0')}</span>
        <span class="bcard-chip">Atout ${String(i+1).padStart(2,'0')} / 0${N}</span>
        <div class="bcard-glow"></div>
        ${canFX(b.id, 'bcard-can', 'Canette Dada ' + b.title)}
@@ -686,52 +705,64 @@ if (!REDUCED && document.querySelector('.band')){
     rail && rail.appendChild(t); return t;
   });
 
-  // Fallback : reduced-motion, pas de ScrollTrigger, ou MOBILE → pile verticale lisible
-  // (sur petit écran l'animation du deck superpose les cartes/textes)
-  if (REDUCED || typeof ScrollTrigger === 'undefined' || window.matchMedia('(max-width:760px)').matches){
+  // Fallback : reduced-motion ou pas de ScrollTrigger → pile verticale lisible
+  if (REDUCED || typeof ScrollTrigger === 'undefined'){
     section.classList.add('is-static');
     cards.forEach(c=> c.classList.add('is-active'));
     ticks.forEach(t=> t.classList.add('is-on'));
     return;
   }
 
-  section.style.height = ((N + 0.6) * 100) + 'svh';
-  pin.style.setProperty('--deck-c', BENEFITS[0].c);
-  cards[0].classList.add('is-active');
-  ticks[0].classList.add('is-on','is-current');
-
-  let dir = 1;
-  const M = N - 1;          // intervalles : carte 0 centrée à p=0, carte N-1 à p=1
-  const HOLD = 0.34;        // zone où la carte reste pleine/centrée → repos toujours propre
+  // Les atouts s'empilent : le 1er est déjà là, chaque carte suivante monte du bas et se pose
+  // dessus ; celles du dessous reculent un peu (plus petites, plus sombres, le haut dépasse).
+  const M = N - 1;
+  const STEP = 72;          // défilement par carte, en svh
+  const TAIL = 0.5;         // la dernière carte reste un moment avant la suite de la page
+  const LAND = 0.7;         // part de chaque intervalle où la carte arrive (le reste = repos)
+  section.style.height = (100 + (M + TAIL) * STEP) + 'svh';
+  const ease = x => 1 - Math.pow(1 - x, 3);
+  const dims = cards.map(c => c.querySelector('.bcard-dim'));
+  const tops = cards.map(c => [c.querySelector('.bcard-ghost'), c.querySelector('.bcard-chip')]);   // effacés quand la carte est recouverte
+  let lastCur = -1;
+  function paint(t){
+    const land = cards.map((c,i)=> i === 0 ? 1 : Math.max(0, Math.min(1, (t - (i - 1)) / LAND)));
+    const from = pin.clientHeight * 0.5 + stage.offsetHeight * 0.6;      // départ sous l'écran
+    let cur = 0;
+    for (let i = 1; i < N; i++) if (land[i] >= 0.5) cur = i;
+    cards.forEach((card,i)=>{
+      let depth = 0;
+      for (let j = i + 1; j < N; j++) depth += land[j];
+      const d = Math.min(depth, 3);
+      const ty = (1 - ease(land[i])) * from - d * 24;      // ~12 px de chaque carte du dessous dépassent
+      const sc = 1 - d * 0.04;
+      card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px)) scale(${sc.toFixed(3)})`;
+      card.style.zIndex = 10 + i;
+      card.style.visibility = (land[i] <= 0 || depth >= 3.5) ? 'hidden' : 'visible';
+      card.style.opacity = depth > 2.5 ? Math.max(0, 3.5 - depth).toFixed(3) : '';
+      card.style.pointerEvents = i === cur ? 'auto' : 'none';
+      dims[i].style.opacity = (d * 0.17).toFixed(3);
+      const o = Math.max(0, 1 - depth * 2.5).toFixed(3);
+      tops[i].forEach(el => { if (el) el.style.opacity = o; });
+    });
+    if (cur === lastCur) return;
+    lastCur = cur;
+    cards.forEach((card,i)=> card.classList.toggle('is-active', i === cur));
+    ticks.forEach((tk,i)=>{ tk.classList.toggle('is-on', i<=cur); tk.classList.toggle('is-current', i===cur); });
+    pin.style.setProperty('--deck-c', BENEFITS[cur].c);
+    if (counter) counter.textContent = String(cur+1).padStart(2,'0')+' / 0'+N;
+  }
   const st = ScrollTrigger.create({
     trigger: section, start:'top top', end:'bottom bottom',
     scrub:true, invalidateOnRefresh:true,
-    onUpdate: self => {
-      dir = self.direction;
-      const p = self.progress, t = p * M;
-      const cur = Math.max(0, Math.min(N-1, Math.round(t)));
-      cards.forEach((card,i)=>{
-        const u = t - i, a = Math.abs(u);
-        const k = a <= HOLD ? 0 : Math.min(1, (a - HOLD)/(1 - HOLD));   // 0 = centrée, 1 = partie
-        let ty, sc, rot;
-        if (u >= 0){ ty = -k*72;  sc = 1 + k*0.06; rot = (dir<0 ? k*4 : -k*4); }  // s'envole vers le haut
-        else       { ty = k*120;  sc = 1 - k*0.14; rot = k*3; }                    // monte depuis le bas
-        card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px)) scale(${sc.toFixed(3)}) rotate(${rot.toFixed(2)}deg)`;
-        card.style.opacity = Math.max(0, 1 - k*1.05).toFixed(3);
-        card.style.zIndex = Math.round(100 - a*10);
-        card.style.pointerEvents = (a < 0.5) ? 'auto' : 'none';
-        card.classList.toggle('is-active', i === cur);
-      });
-      ticks.forEach((tk,i)=>{ tk.classList.toggle('is-on', i<=cur); tk.classList.toggle('is-current', i===cur); });
-      pin.style.setProperty('--deck-c', BENEFITS[cur].c);
-      if (counter) counter.textContent = String(cur+1).padStart(2,'0')+' / 0'+N;
-    }
+    onUpdate: self => paint(Math.min(M, self.progress * (M + TAIL))),
+    onRefresh: self => paint(Math.min(M, self.progress * (M + TAIL)))
   });
+  paint(0);
 
-  // a11y : clic sur une pastille → saute à la carte (centre = p=i/M)
+  // a11y : clic sur une pastille → défile jusqu'à la carte posée
   ticks.forEach((tk,i)=> tk.addEventListener('click', ()=>{
-    const y = st.start + (i/M) * (st.end - st.start);
-    if (lenis) lenis.scrollTo(y,{duration:0.7}); else window.scrollTo({top:y, behavior:'smooth'});
+    const y = st.start + (i / (M + TAIL)) * (st.end - st.start);
+    if (lenis) lenis.scrollTo(y,{duration:0.8}); else window.scrollTo({top:y, behavior:'smooth'});
   }));
 })();
 
