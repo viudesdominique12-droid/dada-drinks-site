@@ -61,15 +61,15 @@ button{font-family:inherit;cursor:none;border:none;background:none;color:inherit
 
 /* ---------- CURSOR ---------- */
 .cursor{
-  position:fixed;top:0;left:0;width:14px;height:14px;border-radius:50%;
-  background:var(--blanc);z-index:10000;pointer-events:none;
+  position:fixed;top:0;left:0;width:14px;height:14px;border-radius:50%;box-sizing:border-box;
+  background:var(--blanc);border:2px solid transparent;z-index:10000;pointer-events:none;
   transform:translate(-50%,-50%);mix-blend-mode:difference;
-  transition:width .3s var(--ease),height .3s var(--ease),background .3s;
+  transition:width .3s var(--ease),height .3s var(--ease),background .25s,border-color .25s;
   display:flex;align-items:center;justify-content:center;
 }
-.cursor.is-hover{width:74px;height:74px;background:var(--rouge);mix-blend-mode:normal}
-.cursor-label{font-family:var(--font-display);font-weight:800;font-size:12px;color:#fff;opacity:0;transition:opacity .2s;text-transform:uppercase;letter-spacing:.04em}
-.cursor.is-hover .cursor-label{opacity:1}
+/* survol d'un lien : le point reste discret — un anneau creux, le texte reste lisible */
+.cursor.is-hover{width:28px;height:28px;background:transparent;border-color:var(--blanc)}
+.cursor-label{display:none}
 @media (pointer:coarse){ .cursor{display:none} }
 
 /* ---------- SPLIT INTRO ---------- */
@@ -1251,3 +1251,15 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
 .legal-sante{margin-top:28px!important;font-weight:600}
 .legal-date{margin-top:20px!important;font-size:13px!important;opacity:.75}
 @media(max-width:820px){.legal-grid{grid-template-columns:1fr}.legal-toc{position:static;flex-direction:row;flex-wrap:wrap;gap:8px 16px;border-left:none;padding-left:0}}
+
+/* --- pied de page : pictogrammes des réseaux (couleur de la marque au survol) --- */
+.social-icons{display:flex;flex-wrap:wrap;gap:8px}
+.footer-col .soc{display:grid;place-items:center;width:44px;height:44px;margin:0;border-radius:50%;background:#fff;border:1px solid var(--line);color:var(--ink);
+  box-shadow:0 10px 24px -18px rgba(20,8,10,.5);transition:transform .35s var(--ease),background .35s,color .35s,box-shadow .35s,border-color .35s}
+.soc svg{width:20px;height:20px;fill:currentColor;display:block}
+.footer-col .soc:hover{transform:translateY(-4px);color:#fff;background:var(--brand);border-color:transparent;box-shadow:0 14px 26px -12px var(--brand)}
+.footer-col .soc--ig:hover{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.footer-col .soc--tt:hover svg{filter:drop-shadow(-1.4px -1.2px 0 #25F4EE) drop-shadow(1.4px 1.2px 0 #FE2C55)}
+.soc:focus-visible{outline:2px solid var(--rouge);outline-offset:3px}
+.reach-socials a{display:inline-flex;align-items:center;gap:7px}
+.rs-ic{width:15px;height:15px;fill:currentColor;flex:none}
