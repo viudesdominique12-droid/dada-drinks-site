@@ -1236,7 +1236,7 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
 .story-media--archive img{object-fit:contain}
 
 /* --- MENTIONS LÉGALES --- */
-.legal{padding:clamp(40px,7vh,80px) 0 clamp(60px,10vh,110px)}
+.legal-page{padding:clamp(40px,7vh,80px) 0 clamp(60px,10vh,110px)}
 .legal-grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start}
 .legal-toc{position:sticky;top:110px;display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--line);padding-left:18px}
 .legal-toc a{font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);text-decoration:none;transition:color .25s}
@@ -1254,12 +1254,108 @@ body:has(.hero--cinema) .nav:not(.scrolled):not(.nav-open) .nav-burger span{back
 
 /* --- pied de page : pictogrammes des réseaux (couleur de la marque au survol) --- */
 .social-icons{display:flex;flex-wrap:wrap;gap:8px}
-.footer-col .soc{display:grid;place-items:center;width:44px;height:44px;margin:0;border-radius:50%;background:#fff;border:1px solid var(--line);color:var(--ink);
+.footer-social .soc{display:grid;place-items:center;width:44px;height:44px;margin:0;border-radius:50%;background:#fff;border:1px solid var(--line);color:var(--ink);
   box-shadow:0 10px 24px -18px rgba(20,8,10,.5);transition:transform .35s var(--ease),background .35s,color .35s,box-shadow .35s,border-color .35s}
 .soc svg{width:20px;height:20px;fill:currentColor;display:block}
-.footer-col .soc:hover{transform:translateY(-4px);color:#fff;background:var(--brand);border-color:transparent;box-shadow:0 14px 26px -12px var(--brand)}
-.footer-col .soc--ig:hover{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
-.footer-col .soc--tt:hover svg{filter:drop-shadow(-1.4px -1.2px 0 #25F4EE) drop-shadow(1.4px 1.2px 0 #FE2C55)}
+.footer-social .soc:hover{transform:translateY(-4px);color:#fff;background:var(--brand);border-color:transparent;box-shadow:0 14px 26px -12px var(--brand)}
+.footer-social .soc--ig:hover{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.footer-social .soc--tt:hover svg{filter:drop-shadow(-1.4px -1.2px 0 #25F4EE) drop-shadow(1.4px 1.2px 0 #FE2C55)}
 .soc:focus-visible{outline:2px solid var(--rouge);outline-offset:3px}
 .reach-socials a{display:inline-flex;align-items:center;gap:7px}
 .rs-ic{width:15px;height:15px;fill:currentColor;flex:none}
+
+/* --- CONTACT : la jauge = une vraie canette Dada qui se remplit --- */
+.ct-gauge{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:clamp(18px,2.4vw,30px);padding:26px clamp(20px,2.4vw,30px);
+  background:radial-gradient(120% 90% at 18% 50%,color-mix(in srgb,var(--accent) 12%,#fff),#fff 70%);transition:background .6s var(--ease)}
+/* --lvl : 0 → 1 (JS) ; --can : silhouette de la canette, URL absolue posée en JS */
+.ctg-can{--lvl:0;position:relative;height:clamp(220px,26vw,290px);aspect-ratio:295/780;
+  -webkit-mask:var(--can) center/100% 100% no-repeat;mask:var(--can) center/100% 100% no-repeat;
+  transition:opacity .35s,transform .5s var(--ease);filter:drop-shadow(0 18px 22px rgba(20,8,10,.18))}
+.ctg-can.is-swap{opacity:0;transform:translateY(8px) scale(.97)}
+.ctg-can img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none}
+.ctg-ghost{filter:grayscale(1) brightness(1.3) contrast(.7);opacity:.3}
+.ctg-liquid{position:absolute;inset:0;clip-path:inset(calc((1 - var(--lvl)) * 100%) 0 0 0);transition:clip-path .9s cubic-bezier(.22,1,.36,1)}
+.ctg-wave{position:absolute;left:0;width:200%;height:14px;top:calc((1 - var(--lvl)) * 100% - 7px);fill:rgba(255,255,255,.6);
+  opacity:min(1,calc(var(--lvl) * 6));transition:top .9s cubic-bezier(.22,1,.36,1),opacity .3s;animation:ctgWave 2.6s linear infinite}
+@keyframes ctgWave{to{transform:translateX(-50%)}}
+.ctg-bubbles{position:absolute;inset:0;overflow:hidden}
+.ctg-bubbles i{position:absolute;bottom:-12px;width:var(--s);height:var(--s);border-radius:50%;border:1px solid rgba(255,255,255,.6);
+  background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 16%,rgba(255,255,255,.22) 42%,rgba(255,255,255,.06) 72%);
+  animation:ctgBub var(--d) linear infinite;animation-delay:var(--dl)}
+@keyframes ctgBub{0%{transform:translate(0,0);opacity:0}12%{opacity:1}100%{transform:translate(var(--dx),-320px);opacity:0}}
+.ct-gauge.is-full .ctg-can{animation:ctgPop .75s cubic-bezier(.34,1.56,.64,1)}
+@keyframes ctgPop{0%{transform:scale(1)}40%{transform:scale(1.07) rotate(-3deg)}100%{transform:scale(1)}}
+.ct-gauge .ct-pct{font-size:clamp(40px,4.4vw,56px)}
+.ct-gauge .ct-gauge-lab{font-family:var(--font-display);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);max-width:none}
+.ctg-steps{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:9px}
+.ctg-steps li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft);transition:color .3s}
+.ctg-steps li i{position:relative;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;transition:background .3s,border-color .3s,transform .3s var(--ease)}
+.ctg-steps li.is-done{color:var(--ink)}
+.ctg-steps li.is-done i{background:var(--accent);border-color:var(--accent);transform:scale(1.08)}
+.ctg-steps li.is-done i::after{content:"";position:absolute;left:5px;top:4px;width:7px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg)}
+.ctg-steps em{font-style:normal;opacity:.7;font-size:12.5px}
+@media (prefers-reduced-motion:reduce){.ctg-wave{animation:none}.ctg-bubbles{display:none}.ctg-liquid,.ctg-wave,.ctg-can{transition:none}}
+
+/* --- CONTACT : le QG sur une vraie carte (Leaflet + tuiles OpenStreetMap) --- */
+.ct-reach{padding:clamp(30px,6vh,60px) 0 26px}
+.find-card{display:grid;grid-template-columns:1.3fr 1fr;border-radius:30px;overflow:hidden;background:#fff;border:1px solid var(--line);
+  box-shadow:0 34px 80px -46px rgba(20,8,10,.5);margin-bottom:18px}
+.find-map{min-height:460px;background:#EEE7DD;position:relative;z-index:0}
+/* OSM standard adouci : tons chauds et sourds, le repère rouge ressort */
+.find-map .leaflet-tile-pane{filter:grayscale(.45) sepia(.22) saturate(.9) brightness(1.04) contrast(.92)}
+.find-map .leaflet-control-attribution{font-size:10px;background:rgba(255,255,255,.75)}
+.find-map .leaflet-bar{border:none;box-shadow:0 8px 20px -10px rgba(20,8,10,.5);border-radius:12px;overflow:hidden}
+.find-map .leaflet-bar a{color:var(--ink);font-weight:700}
+.find-info{padding:clamp(28px,4vw,54px);display:flex;flex-direction:column;justify-content:center}
+.find-kicker{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--rouge);margin-bottom:14px}
+.find-kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--rouge);box-shadow:0 0 0 4px color-mix(in srgb,var(--rouge) 18%,transparent)}
+.find-title{font-family:var(--font-display);font-weight:900;text-transform:uppercase;font-size:clamp(30px,3.3vw,48px);line-height:.95;letter-spacing:-.01em;color:var(--ink);margin-bottom:14px}
+.find-addr{color:var(--ink-soft);font-size:15.5px;margin-bottom:24px}
+.find-list{list-style:none;padding:0;margin:0 0 28px;display:grid;gap:12px;border-top:1px solid var(--line);padding-top:20px}
+.find-list li{display:grid;grid-template-columns:88px 1fr;gap:12px;font-size:14.5px;line-height:1.5;color:var(--ink-soft)}
+.find-list b{font-family:var(--font-display);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);padding-top:2px}
+.find-actions{display:flex;flex-wrap:wrap;gap:10px}
+.find-actions .btn-ghost{border-color:var(--line);color:var(--ink)}
+.ct-reach-grid--2{grid-template-columns:repeat(2,1fr)}
+/* « Champs-Élysées. » tient sur une ligne : la taille suit la largeur de la colonne */
+.find-info{container-type:inline-size}
+.find-title{font-size:clamp(26px,9.6cqi,50px)}
+.find-title .gradient-text{white-space:nowrap}
+/* repère Dada sur la carte */
+.dada-pin{position:relative}
+.dada-pin .dp-drop{position:absolute;left:6px;top:0;width:44px;height:44px;display:grid;place-items:center;background:var(--rouge);border:3px solid #fff;
+  border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 12px 24px -8px rgba(226,0,26,.75)}
+.dada-pin .dp-drop img{width:28px;height:auto;transform:rotate(45deg);display:block}
+.dada-pin .dp-pulse{position:absolute;left:28px;top:53px;width:22px;height:10px;margin:-5px 0 0 -11px;border-radius:50%;background:rgba(226,0,26,.38);animation:dpPulse 2.2s ease-out infinite}
+@keyframes dpPulse{0%{transform:scale(.5);opacity:.9}100%{transform:scale(3.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dada-pin .dp-pulse{animation:none}}
+@media(max-width:900px){.find-card{grid-template-columns:1fr}.find-map{min-height:320px}.ct-reach-grid--2{grid-template-columns:1fr}
+  .find-list li{grid-template-columns:78px 1fr}.find-actions .btn{flex:1 1 auto;justify-content:center}}
+
+/* --- CONTACT : carte WhatsApp --- */
+.reach-ic--wa{background:color-mix(in srgb,#25D366 16%,#fff);color:#128C4A}
+.reach-ic--wa svg{width:26px;height:26px}
+.wa-btn{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:13px 20px;border-radius:30px;background:#25D366;color:#fff!important;
+  font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.01em;text-decoration:none;box-shadow:0 14px 28px -14px rgba(37,211,102,.8);
+  transition:transform .3s var(--ease),box-shadow .3s,background .3s}
+.wa-btn svg{width:18px;height:18px}
+.wa-btn:hover{transform:translateY(-2px);background:#1EBE5A;box-shadow:0 18px 32px -14px rgba(37,211,102,.9)}
+
+/* --- CONTACT : carte DM, pastilles aux couleurs des réseaux --- */
+.reach-dm p b{color:var(--ink);font-weight:700}
+.reach-dm .reach-socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.reach-dm .reach-socials a{justify-content:center}
+.reach-dm .reach-socials a:hover{background:var(--brand);color:#fff;border-color:transparent;box-shadow:0 12px 22px -12px var(--brand)}
+.reach-dm .reach-socials a.rs--ig:hover{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.reach-dm .reach-socials a.rs--tt:hover .rs-ic{filter:drop-shadow(-1px -.8px 0 #25F4EE) drop-shadow(1px .8px 0 #FE2C55)}
+.ct-reach-grid--2 .reach-card{display:flex;flex-direction:column;align-items:flex-start}
+.ct-reach-grid--2 .reach-card .wa-btn,.ct-reach-grid--2 .reach-card .reach-socials{margin-top:auto}
+.ct-reach-grid--2 .reach-card p{margin-bottom:18px}
+
+/* --- pied de page : les réseaux alignés en bas, juste au-dessus de la dernière ligne --- */
+.footer-grid{grid-template-columns:2fr 1fr 1fr}
+.footer-social{display:flex;align-items:center;margin-top:52px}
+.footer-social .social-icons{gap:10px}
+.footer-social + .footer-bottom{margin-top:26px}
+@media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr}.footer-brand{grid-column:1/-1}}
+@media (max-width:680px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px 20px}.footer-social{margin-top:40px}}

@@ -834,13 +834,13 @@ if (!REDUCED && document.querySelector('.band')){
   const tint = (typeof lightTint === 'function') ? lightTint : (h)=>h;
 
   const PROFILES = {
-    particulier:{ accent:'#E2001A', extra:'Sujet',
+    particulier:{ accent:'#E2001A', extra:'Sujet', can:'cola',
       help:`<h4>Une question&nbsp;?</h4><p>Un avis, une idée, un parfum introuvable&nbsp;? Écris-nous ici ou directement sur <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp</a>. Pour commander&nbsp;: la <a href="https://www.dadadrinks.com/shop-brine" target="_blank" rel="noopener">boutique officielle</a> (packs de 24).</p>` },
-    pro:{ accent:'#1FA98C', extra:'Société',
+    pro:{ accent:'#1FA98C', extra:'Société', can:'mangue',
       help:`<h4>Espace Pro</h4><p>Revente, distribution, CHR&nbsp;: palettes de 25 à 100 packs, vitrines réfrigérées — tout est sur l'<a href="professionnels.html">espace pro</a>. Le plus rapide&nbsp;: <a href="https://wa.me/33782206131" target="_blank" rel="noopener">WhatsApp +33 7 82 20 61 31</a>.</p>` },
-    presse:{ accent:'#A8275E', extra:'Média / publication',
+    presse:{ accent:'#A8275E', extra:'Média / publication', can:'cola-cherry',
       help:`<h4>Presse &amp; média</h4><p>Interview, visuels, reportage&nbsp;: précise ton média et ton délai, on revient vers toi. Tu peux aussi écrire en DM sur <a href="https://www.instagram.com/dadadrinks/" target="_blank" rel="noopener">Instagram</a>.</p>` },
-    collab:{ accent:'#E3023B', extra:'Projet / lien (IG, portfolio)',
+    collab:{ accent:'#E3023B', extra:'Projet / lien (IG, portfolio)', can:'fraise',
       help:`<h4>Collabs &amp; artistes</h4><p>Une idée qui bouscule&nbsp;? Glisse ton lien. Musique, street, art — on adore. Voir nos <a href="collaborations.html">collabs</a>.</p>` },
   };
 
@@ -854,40 +854,52 @@ if (!REDUCED && document.querySelector('.band')){
     rootS.setProperty('--hero-tint', tint(p.accent, 0.82));
     if (extraLabel) extraLabel.textContent = p.extra;
     if (help) help.innerHTML = p.help;
+    const exL = document.getElementById('ctgExtraLab');
+    if (exL) exL.textContent = p.extra;
+    // la canette de la jauge prend le parfum du profil (silhouette = URL absolue, cf. --can)
+    const box = document.getElementById('ctgCan');
+    if (box && p.can){
+      const src = canSrc(p.can), abs = new URL(src, location.href).href;
+      const swap = ()=>{ box.querySelectorAll('img').forEach(im=>{ im.src = src; }); box.style.setProperty('--can', `url("${abs}")`); };
+      if (!box.dataset.can || REDUCED){ swap(); }
+      else if (box.dataset.can !== p.can){ box.classList.add('is-swap'); setTimeout(()=>{ swap(); box.classList.remove('is-swap'); }, 260); }
+      box.dataset.can = p.can;
+    }
   }
   pfBtns.forEach(b=> b.addEventListener('click', ()=> applyProfile(b.dataset.profil)));
   // contact.html#pro (lien « Prendre rendez-vous » du bandeau SIAL) → profil présélectionné
   const fromHash = (location.hash || '').slice(1);
   applyProfile(PROFILES[fromHash] ? fromHash : 'particulier');
 
-  /* ---- jauge canette ---- */
-  const juice = document.getElementById('ctJuice');
-  const wave  = document.getElementById('ctWave');
+  /* ---- jauge : une vraie canette qui se remplit à mesure du formulaire ---- */
+  const gauge = document.getElementById('ctGauge');
+  const canBox = document.getElementById('ctgCan');
   const pctEl = document.getElementById('ctPct');
   const labEl = document.getElementById('ctGaugeLab');
-  const fields = ['nom','email','extra','msg'].map(id=>document.getElementById(id)).filter(Boolean);
-  const H=172, TOP=30;
-  let level=0, shown=0;
-  const buildWave=(off,amp)=>{ let p='M 16 '+TOP; for(let x=16;x<=104;x+=8){ const y=TOP+Math.sin((x+off)*0.16)*amp; p+=' L '+x+' '+y.toFixed(1);} return p+' L 104 240 L 16 240 Z'; };
-  function setGauge(){
-    let n=0; fields.forEach(f=>{ if((f.value||'').trim()) n++; });
-    level = fields.length ? n/fields.length : 0;
-    if (pctEl) pctEl.textContent = Math.round(level*100)+'%';
-    if (labEl) labEl.textContent = level>=1 ? 'Prêt à envoyer !' : (level>0 ? 'Continue…' : 'Remplis pour envoyer');
+  const steps = gauge ? [...gauge.querySelectorAll('.ctg-steps li')] : [];
+  const F = { nom:document.getElementById('nom'), email:document.getElementById('email'), msg:document.getElementById('msg'), extra:document.getElementById('extra') };
+  const okEmail = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+  const isDone = { nom:()=>F.nom.value.trim().length>1, email:()=>okEmail(F.email.value.trim()), msg:()=>F.msg.value.trim().length>4, extra:()=>F.extra.value.trim().length>0 };
+  let wasFull = false;
+  function setGauge(force){
+    const n = force ? 3 : ['nom','email','msg'].filter(k=>isDone[k]()).length;
+    const lvl = n/3;
+    if (canBox) canBox.style.setProperty('--lvl', lvl.toFixed(3));
+    if (pctEl) pctEl.textContent = Math.round(lvl*100)+'%';
+    if (labEl) labEl.textContent = lvl>=1 ? 'Prête à partir !' : (lvl>0 ? 'Encore un effort…' : 'Remplis pour envoyer');
+    steps.forEach(li=>{ const k=li.dataset.f; li.classList.toggle('is-done', (force && k!=='extra') || isDone[k]()); });
+    const full = lvl>=1;
+    if (gauge) gauge.classList.toggle('is-full', full);
+    if (full && !wasFull && canBox){ const r=canBox.getBoundingClientRect(); dadaFizz(r.left+r.width/2, r.top+r.height*0.12, 14); }
+    wasFull = full;
   }
-  fields.forEach(f=> f.addEventListener('input', setGauge));
-  if (!REDUCED && juice && wave){
-    const NS='http://www.w3.org/2000/svg';
-    const gb=document.getElementById('ctBubbles');
-    for(let i=0;i<5;i++){ const c=document.createElementNS(NS,'circle');
-      c.setAttribute('r',(1.6+Math.random()*1.7).toFixed(1)); c.setAttribute('cx',(30+Math.random()*60).toFixed(0)); c.setAttribute('cy','200'); c.setAttribute('fill','rgba(255,255,255,.7)'); gb.appendChild(c);
-      const run=()=>gsap.fromTo(c,{attr:{cy:198},opacity:0},{attr:{cy:TOP+8},opacity:.8,duration:2+Math.random()*2,ease:'sine.out',delay:Math.random()*3,onComplete:()=>{gsap.set(c,{opacity:0});run();}}); run(); }
-    gsap.ticker.add((time)=>{
-      shown += (level-shown)*0.12;
-      juice.setAttribute('transform','translate(0,'+((1-shown)*H).toFixed(1)+')');
-      wave.setAttribute('d', buildWave(time*60, 2.4));
-    });
-  } else if (juice && wave){ wave.setAttribute('d', buildWave(0,0)); juice.setAttribute('transform','translate(0,'+H+')'); }
+  Object.values(F).forEach(f=> f && f.addEventListener('input', ()=>setGauge()));
+  const bub = document.getElementById('ctgBubbles');
+  if (bub && !REDUCED){
+    for (let i=0;i<9;i++){ const b=document.createElement('i');
+      b.style.cssText = `left:${(8+Math.random()*80).toFixed(1)}%;--s:${(4+Math.random()*7).toFixed(1)}px;--d:${(2.2+Math.random()*2.6).toFixed(2)}s;--dl:${(-Math.random()*4).toFixed(2)}s;--dx:${Math.round(Math.random()*16-8)}px`;
+      bub.appendChild(b); }
+  }
   setGauge();
 
   /* ---- envoi -> confirmation ---- */
@@ -899,7 +911,7 @@ if (!REDUCED && document.querySelector('.band')){
     [nom,email,msg].forEach(f=>{ if(!f.value.trim()){ ok=false; f.classList.add('ct-invalid'); } else f.classList.remove('ct-invalid'); });
     if(email.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)){ ok=false; email.classList.add('ct-invalid'); }
     if(!ok){ if(!REDUCED) gsap.fromTo(form.querySelector('.ct-send'),{x:-7},{x:0,duration:.5,ease:'elastic.out(1,0.3)'}); return; }
-    level=1; setGauge();
+    setGauge(true);
     success.hidden=false;
     if(!REDUCED){
       gsap.fromTo(success,{autoAlpha:0},{autoAlpha:1,duration:.4});
@@ -924,6 +936,24 @@ if (!REDUCED && document.querySelector('.band')){
   });
 })();
 
+
+/* --- CONTACT : le QG sur une vraie carte (Leaflet + tuiles OpenStreetMap, sans clé) --- */
+(function(){
+  const el = document.getElementById('ctMap');
+  if (!el || typeof L === 'undefined') return;
+  const QG = [48.870856, 2.305367];          // 66 avenue des Champs-Élysées, 75008 Paris (Base Adresse Nationale)
+  const map = L.map(el, { center:QG, zoom:16, scrollWheelZoom:false, dragging:!COARSE, tap:false, zoomControl:true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+  }).addTo(map);
+  const icon = L.divIcon({ className:'dada-pin', iconSize:[56,64], iconAnchor:[28,53],
+    html:'<span class="dp-pulse"></span><span class="dp-drop"><img src="assets/brand/logo-dada-white.png" alt=""></span>' });
+  L.marker(QG, { icon, keyboard:false, title:'Dada Drinks — 66 avenue des Champs-Élysées' }).addTo(map);
+  // la carte est mesurée avant la fin des animations d'entrée : on la recale une fois visible
+  const io = new IntersectionObserver(es=>{ if (es.some(e=>e.isIntersecting)){ map.invalidateSize(); io.disconnect(); } });
+  io.observe(el);
+})();
 
 /* ============================================================
    POLISH v56 — wipe de page, jus de scroll, fizz, footer DADA,
